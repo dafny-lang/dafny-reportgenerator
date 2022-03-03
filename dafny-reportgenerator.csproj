@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <DafnySource Remove="@(DafnySource)" />
+    <DafnySource Include="src/**/*.dfy" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="dafny.msbuild" Version="1.0.0" />
   </ItemGroup>
 
