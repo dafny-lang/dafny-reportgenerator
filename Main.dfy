@@ -1,4 +1,9 @@
 
+module Externs {
+  method {:extern} GetCommandLineArgs() returns (args: seq<string>)
+}
+
 method Main() {
-  print "Hello, World! It's me, Dafny!\n";
+  var args := Externs.GetCommandLineArgs();
+  print "Args: ", args, "\n";
 }
