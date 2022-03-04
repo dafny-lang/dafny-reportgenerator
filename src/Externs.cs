@@ -1,4 +1,5 @@
 
+using System.Numerics;
 using Dafny;
 using Wrappers_Compile;
 using icharseq = Dafny.ISequence<char>;
@@ -24,6 +25,25 @@ namespace Externs_Compile {
         return Result<ISequence<icharseq>, icharseq>.create_Success(dafnyLines);
       } catch (Exception e) {
         return Result<ISequence<icharseq>, icharseq>.create_Failure(charseq.FromString(e.Message));
+      }
+    }
+
+    public static _IResult<BigInteger, icharseq> ParseNat(icharseq dafnyString) {
+      var s = dafnyString.ToString();
+      try {
+        return Result<BigInteger, icharseq>.create_Success(Int32.Parse(s));
+      } catch (Exception e) {
+        return Result<BigInteger, icharseq>.create_Failure(charseq.FromString(e.Message));
+      }
+    }
+
+    public static _IResult<long, icharseq> ParseDuration(icharseq dafnyString) {
+      var s = dafnyString.ToString();
+      try {
+        var timeSpan = TimeSpan.Parse(s);
+        return Result<long, icharseq>.create_Success(timeSpan.Ticks);
+      } catch (Exception e) {
+        return Result<long, icharseq>.create_Failure(charseq.FromString(e.Message));
       }
     }
   }

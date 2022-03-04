@@ -3,25 +3,18 @@ include "../libraries/src/Wrappers.dfy"
 include "../libraries/src/BoundedInts.dfy"
 
 include "CSV.dfy"
-module Externs {
-
-  import opened Wrappers
-  import opened BoundedInts
-
-  method {:extern} GetCommandLineArgs() returns (args: seq<string>)
-  method {:extern} SetExitCode(exitCode: uint8)
-  method {:extern} ReadAllFileLines(path: string) returns (lines: Result<seq<string>, string>)
-}
-
+include "Externs.dfy"
+include "TestResult.dfy"
 module Main {
 
   import opened Wrappers
 
-  import Externs
   import CSV
-
+  import Externs
+  import TestResult
+  
   method Main() {
-    // Working around the lack of arguments or return value from main methods.
+    // Working around the lack of arguments or return value on main methods.
     // See https://github.com/dafny-lang/dafny/issues/1116.
     var args := Externs.GetCommandLineArgs();
     var result := MainAux(args);
@@ -42,6 +35,15 @@ module Main {
   method ProcessFile(path: string) returns (result: Result<(), string>) {
     var lines :- Externs.ReadAllFileLines(path);
     var table :- CSV.ParseDataWithHeader(lines);
-    print table;
+    var passed := true;
+    for i := 0 to |table| {
+      var overlimit :- TestResult.ResourceCountOverLimit(table[i], 2);
+      if overlimit {
+        print "Over the limit: \n", table[i], "\n";
+        passed := false;
+      }
+    }
+    :- Need(passed, "Some results were over the limit!\n");
+    return Success(());
   }
 }

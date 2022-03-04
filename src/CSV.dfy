@@ -14,18 +14,18 @@ module CSV {
     :- Need(|lines| > 0, "Must have at least one row");
     var header := ParseRow(lines[0]);
     :- Need(|ToSet(header)| == |header|, "Header row must not have duplicates");
-    Seq.LemmaNoDuplicatesCardinalityOfSet(header);
+    LemmaNoDuplicatesCardinalityOfSet(header);
     var parseRow := line => ParseRowWithHeader(header, line);
     var rows :- Seq.MapWithResult(parseRow, lines[1..]);
     Success(rows)
   }
 
   function method ParseRowWithHeader(header: seq<string>, line: string): Result<CSVRow, string>
-    requires Seq.HasNoDuplicates(header)
+    requires HasNoDuplicates(header)
   {
     var row := ParseRow(line);
     :- Need(|row| == |header|, "Wrong number of columns in row");
-    reveal Seq.HasNoDuplicates();
+    reveal HasNoDuplicates();
     Success(map i | 0 <= i < |header| :: header[i] := row[i])
   }
 
