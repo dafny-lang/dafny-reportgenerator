@@ -37,7 +37,11 @@ namespace Externs_Compile {
       }
     }
 
-    public static _IResult<long, icharseq> ParseDuration(icharseq dafnyString) {
+    public static icharseq NatToString(BigInteger n) {
+      return charseq.FromString(n.ToString());
+    }
+
+    public static _IResult<long, icharseq> ParseDurationTicks(icharseq dafnyString) {
       var s = dafnyString.ToString();
       try {
         var timeSpan = TimeSpan.Parse(s);
@@ -45,6 +49,11 @@ namespace Externs_Compile {
       } catch (Exception e) {
         return Result<long, icharseq>.create_Failure(charseq.FromString(e.Message));
       }
+    }
+    
+    public static icharseq DurationTicksToString(long ticks) {
+      var timeSpan = TimeSpan.FromTicks(ticks);
+      return charseq.FromString(timeSpan.ToString());
     }
   }
 }
