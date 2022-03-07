@@ -13,11 +13,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET
+      with:
+        submodules: recursive
+    - name: Set up .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-    - name: Setup Dafny
+    - name: Set up Dafny
       uses: dafny-lang/setup-dafny-action@v1
       with:
         dafny-version: "3.4.2"
