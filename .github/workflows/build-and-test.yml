@@ -26,7 +26,7 @@ jobs:
     - name: Verify Dafny code
       run: dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:csv"
     - name: Run Tests
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --verbosity normal
     - name: Self Report
       # Generates a report based on the logged data from verifying itself.
       # This is both a guard against unstable verifidation and a smoke test of the tool itself.
