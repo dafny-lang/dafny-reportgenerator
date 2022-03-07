@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dafny-reportgenerator", "src\dafny-reportgenerator.csproj", "{7265268A-198B-4B35-B1B4-3B05E031A68C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dafny-reportgenerator-test", "test\dafny-reportgenerator-test.csproj", "{97B72A86-6EDD-42A9-B53A-55253DAD83EA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7265268A-198B-4B35-B1B4-3B05E031A68C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7265268A-198B-4B35-B1B4-3B05E031A68C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7265268A-198B-4B35-B1B4-3B05E031A68C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7265268A-198B-4B35-B1B4-3B05E031A68C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97B72A86-6EDD-42A9-B53A-55253DAD83EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97B72A86-6EDD-42A9-B53A-55253DAD83EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97B72A86-6EDD-42A9-B53A-55253DAD83EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97B72A86-6EDD-42A9-B53A-55253DAD83EA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

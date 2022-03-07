@@ -67,7 +67,6 @@ module Main {
   }
 
   method ParseCommandLineOptions(args: seq<string>) returns (result: Result<Options, string>) {
-    print args;
     // For now only one top-level command
     :- Need(|args| >= 2, "Not enough arguments.");
     :- Need(args[1] == "summarize-csv-results", "The only supported command is `summarize-csv-results`");

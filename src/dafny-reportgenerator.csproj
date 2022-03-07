@@ -5,13 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>dafny_reportgenerator</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <!--Nullable>enable</Nullable-->
   </PropertyGroup>
-
-  <ItemGroup>
-    <DafnySource Remove="@(DafnySource)" />
-    <DafnySource Include="src/**/*.dfy" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="dafny.msbuild" Version="1.0.0" />
