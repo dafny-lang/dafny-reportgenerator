@@ -10,7 +10,7 @@ module CSVTests {
     var data :- expect CSV.ParseDataWithHeader(lines);
     var expectedTable := [
       map["A" := "1", "B" := "2", "C" := "3"],
-      map["A" := "4", "B" := "5", "C" := "7"]
+      map["A" := "4", "B" := "5", "C" := "6"]
     ];
     expect data == expectedTable;
   }
