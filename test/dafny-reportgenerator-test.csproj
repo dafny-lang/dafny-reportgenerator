@@ -20,4 +20,10 @@
     <PackageReference Include="dafny.msbuild" Version="1.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <VerifyDafnyPassthrough Include="timeLimit:60" />
+    <VerifyDafnyPassthrough Include="definiteAssignment:3" />
+    <VerifyDafnyPassthrough Include="$(TestVerifyOverride)" />
+  </ItemGroup>
+
 </Project>

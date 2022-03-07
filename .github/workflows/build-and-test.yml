@@ -1,0 +1,27 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Verify Dafny code
+      run: dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:csv"
+    - name: Run Tests
+      run: dotnet test --no-build --verbosity normal
+    - name: Self Report
+      # Generates a report based on the logged data from verifying itself.
+      # This is both a guard against unstable verifidation and a smoke test of the tool itself.
+      run: dotnet run --project src -- summarize-csv-results --max-resource-count 1000000 src/TestResults/*.csv test/TestResults/*.csv
