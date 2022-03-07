@@ -2,6 +2,8 @@
 include "../libraries/src/Wrappers.dfy"
 include "../libraries/src/Collections/Sequences/Seq.dfy"
 
+// Utilities that should probably be moved into dafny-lang/libraries
+// before too long.
 module StandardLibrary {
 
   import opened Wrappers
@@ -26,7 +28,7 @@ module StandardLibrary {
     forall i, j | 0 <= i < j < |s| :: f(s[i]) <= f(s[j])
   }
 
-  lemma NewFirstElementStillSortedBy<T>(x: T, s: seq<T>, f: T -> int) 
+  lemma LemmaNewFirstElementStillSortedBy<T>(x: T, s: seq<T>, f: T -> int) 
     requires SortedBy(s, f)
     requires |s| == 0 || f(x) <= f(s[0])
     ensures SortedBy([x] + s, f)
@@ -64,12 +66,12 @@ module StandardLibrary {
     else if f(right[0]) < f(left[0]) then
       var rest := MergeSortedBy(left, right[1..], f);
       var result := [right[0]] + rest;
-      NewFirstElementStillSortedBy(right[0], rest, f);
+      LemmaNewFirstElementStillSortedBy(right[0], rest, f);
       assert right == [right[0]] + right[1..];
       result
     else
       var rest := MergeSortedBy(left[1..], right, f);
-      NewFirstElementStillSortedBy(left[0], rest, f);
+      LemmaNewFirstElementStillSortedBy(left[0], rest, f);
       assert left == [left[0]] + left[1..];
       [left[0]] + rest
   }

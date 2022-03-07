@@ -14,5 +14,4 @@ module CSVTests {
     ];
     expect data == expectedTable;
   }
-
 }

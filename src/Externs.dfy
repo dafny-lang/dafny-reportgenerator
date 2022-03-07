@@ -16,5 +16,7 @@ module Externs {
   function method {:extern} NatToString(n: nat): string
   function method {:extern} ParseDurationTicks(s: string): Result<int64, string>
   function method {:extern} DurationTicksToString(n: int64): string
+
+  const DurationTicksPerSecond := 10_000_000;
 }
 

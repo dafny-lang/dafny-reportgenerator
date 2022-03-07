@@ -29,5 +29,5 @@ jobs:
       run: dotnet test --verbosity normal
     - name: Self Report
       # Generates a report based on the logged data from verifying itself.
-      # This is both a guard against unstable verifidation and a smoke test of the tool itself.
+      # This is both a guard against unstable verification and a smoke test of the tool itself.
       run: dotnet run --project src -- summarize-csv-results --max-resource-count 1000000 src/TestResults/*.csv test/TestResults/*.csv

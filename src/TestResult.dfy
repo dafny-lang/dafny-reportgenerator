@@ -22,7 +22,8 @@ module TestResult {
       match this
       case TestResult(displayName, outcome, durationTicks, resourceCount) =>
         // TODO: extern for formatting duration
-        displayName + "(" + outcome + "): " + Externs.NatToString(resourceCount)
+        displayName + "(" + outcome + ") - Duration = " + Externs.NatToString(resourceCount) +
+                                    ", Resource Count = " + Externs.DurationTicksToString(durationTicks)
     }
   }
 
@@ -50,10 +51,5 @@ module TestResult {
     var resourceCountStr :- GetCSVRowField(row, RESOURCE_COUNT);
     var resourceCount :- Externs.ParseNat(resourceCountStr);
     Success(TestResult(displayName, outcome, durationTicks, resourceCount))
-  }
-
-  predicate method ResourceCountOverLimit(testResult: TestResult, maximumResourceCount: nat) {
-    match testResult
-    case TestResult(_, _, _, resourceCount) => maximumResourceCount < testResult.resourceCount
   }
 }

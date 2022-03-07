@@ -18,8 +18,6 @@ module Main {
   import StandardLibrary
   import opened TestResult
   
-  datatype Options = Options(maxResourceCount: Option<nat>, filePaths: seq<string>)
-
   method Main() {
     // Working around the lack of arguments or return value on main methods.
     // See https://github.com/dafny-lang/dafny/issues/1116.
@@ -33,8 +31,16 @@ module Main {
     }
   }
 
+  datatype Options = Options(justHelpText: bool := false,
+                             maxDurationSeconds: Option<nat> := None, 
+                             maxResourceCount: Option<nat> := None,
+                             filePaths: seq<string> := [])
+
   method MainAux(args: seq<string>) returns (result: Result<(), string>) {
     var options :- ParseCommandLineOptions(args);
+    if options.justHelpText {
+      return Success(());
+    }
     
     // Here I really wish I could use MapWithResult on a method-based Action instead of just a function :(
     var allResults := [];
@@ -43,45 +49,99 @@ module Main {
       allResults := allResults + resultsBatch;
     }
 
-    var resourceCountGetter := (r: TestResult.TestResult) => r.resourceCount;
-    var allResultsSortedByResourceCount := StandardLibrary.MergeSortBy(allResults, resourceCountGetter);
+    // Sort by the negative resource count in order to sort from highest to lowest
+    var negativeResourceCountGetter: TestResult.TestResult -> int := (r: TestResult.TestResult) => -(r.resourceCount as int);
+    var allResultsSorted := StandardLibrary.MergeSortBy(allResults, negativeResourceCountGetter);
     
     print "All results: \n\n";
-    for i := 0 to |allResultsSortedByResourceCount| {
-      print allResultsSortedByResourceCount[i].ToString(), "\n";
+    for i := 0 to |allResultsSorted| {
+      print allResultsSorted[i].ToString(), "\n";
+    }
+
+    var passed := true;
+
+    if options.maxDurationSeconds.Some? {
+      var maxDurationTicks :=  options.maxDurationSeconds.value as int * Externs.DurationTicksPerSecond;
+      var allResultsOverLimit := Filter((r: TestResult.TestResult) => maxDurationTicks < r.durationTicks as int, allResultsSorted);
+      if 0 < |allResultsOverLimit| {
+        passed := false;
+        print "\n";
+        print "Some results have a duration over the configured limit of ", options.maxDurationSeconds.value, " second(s):\n\n";
+        for i := 0 to |allResultsOverLimit| {
+          print allResultsOverLimit[i].ToString(), "\n";
+        }
+      }
     }
 
     if options.maxResourceCount.Some? {
-      var allResultsOverLimit := Filter(r => TestResult.ResourceCountOverLimit(r, options.maxResourceCount.value), allResultsSortedByResourceCount);
+      // First check for any results with a resource count of "0".
+      // At the time of writing this, Dafny will report 0 for any methods with splits, and
+      // we don't want to spuriously pass this check because of it.
+      var allResultsWithZeroResourceCounts := Filter((r: TestResult.TestResult) => r.resourceCount == 0, allResultsSorted);
+      if 0 < |allResultsWithZeroResourceCounts| {
+        passed := false;
+        print "\n";
+        print "Some results have a resource count of zero:\n\n";
+        for i := 0 to |allResultsWithZeroResourceCounts| {
+          print allResultsWithZeroResourceCounts[i].ToString(), "\n";
+        }
+      }
+
+      var allResultsOverLimit := Filter((r: TestResult.TestResult) => options.maxResourceCount.value < r.resourceCount, allResultsSorted);
       if 0 < |allResultsOverLimit| {
+        passed := false;
         print "\n";
         print "Some results have a resource count over the configured limit of ", options.maxResourceCount.value, ":\n\n";
         for i := 0 to |allResultsOverLimit| {
           print allResultsOverLimit[i].ToString(), "\n";
         }
-        return Failure("\nErrors occurred: see above\n");
       }
     }
 
-    return Success(());
+    if passed {
+      return Success(());
+    } else {
+      return Failure("\nErrors occurred: see above\n");
+    }
   }
 
+  const helpText :=
+      "usage: dafny-reportgenerator summarize-csv-results [--max-resource-count N] [--max-duration-seconds N] [file_paths ...]\n" +
+      "\n" +
+      "file_paths                 CSV files produced from Dafny's /verificationLogger:csv feature\n" +
+      "--max-resource-count N     Fail if any results have a resource count over the given value\n" +
+      "--max-duration-seconds N   Fail if any results have a duration over the given value in seconds\n" +
+      "";
+
   method ParseCommandLineOptions(args: seq<string>) returns (result: Result<Options, string>) {
-    // For now only one top-level command
     :- Need(|args| >= 2, "Not enough arguments.");
+
+    if args[1] == "--help" {
+      print helpText;
+      return Success(Options(justHelpText := true));
+    }
+
+    // For now only one top-level command
     :- Need(args[1] == "summarize-csv-results", "The only supported command is `summarize-csv-results`");
 
     var maxResourceCount: Option<nat> := None;
+    var maxDurationSeconds: Option<nat> := None;
     var filePaths: seq<string> := [];
     var argIndex := 2;
     while argIndex < |args| {
       var arg := args[argIndex];
       match arg {
         case "--max-resource-count" => {
-          :- Need(argIndex + 1 < |args|, "--max-resource-count must be followed by the maximum count");
+          :- Need(argIndex + 1 < |args|, "--max-resource-count must be followed by an argument\n\n" + helpText);
           argIndex := argIndex + 1;
           var count :- Externs.ParseNat(args[argIndex]);
           maxResourceCount := Some(count);
+        }
+        case "--max-duration-seconds" => {
+          :- Need(argIndex + 1 < |args|, "--max-duration-seconds must be followed by an argument\n\n" + helpText);
+          argIndex := argIndex + 1;
+          var count :- Externs.ParseNat(args[argIndex]);
+          maxDurationSeconds := Some(count);
         }
         case _ => {
           filePaths := filePaths + [arg];
@@ -89,6 +149,8 @@ module Main {
       }
       argIndex := argIndex + 1;
     }
-    return Success(Options(maxResourceCount, filePaths));
+    return Success(Options(maxDurationSeconds := maxDurationSeconds,
+                           maxResourceCount := maxResourceCount, 
+                           filePaths := filePaths));
   }
 }
