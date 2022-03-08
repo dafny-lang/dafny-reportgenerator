@@ -54,9 +54,7 @@ module Main {
     var allResultsSorted := StandardLibrary.MergeSortBy(allResults, negativeResourceCountGetter);
     
     print "All results: \n\n";
-    for i := 0 to |allResultsSorted| {
-      print allResultsSorted[i].ToString(), "\n";
-    }
+    PrintTestResults(allResultsSorted);
 
     var passed := true;
 
@@ -67,9 +65,7 @@ module Main {
         passed := false;
         print "\n";
         print "Some results have a duration over the configured limit of ", options.maxDurationSeconds.value, " second(s):\n\n";
-        for i := 0 to |allResultsOverLimit| {
-          print allResultsOverLimit[i].ToString(), "\n";
-        }
+        PrintTestResults(allResultsOverLimit);
       }
     }
 
@@ -82,9 +78,7 @@ module Main {
         passed := false;
         print "\n";
         print "Some results have a resource count of zero:\n\n";
-        for i := 0 to |allResultsWithZeroResourceCounts| {
-          print allResultsWithZeroResourceCounts[i].ToString(), "\n";
-        }
+        PrintTestResults(allResultsWithZeroResourceCounts);
       }
 
       var allResultsOverLimit := Filter((r: TestResult.TestResult) => options.maxResourceCount.value < r.resourceCount, allResultsSorted);
@@ -92,16 +86,18 @@ module Main {
         passed := false;
         print "\n";
         print "Some results have a resource count over the configured limit of ", options.maxResourceCount.value, ":\n\n";
-        for i := 0 to |allResultsOverLimit| {
-          print allResultsOverLimit[i].ToString(), "\n";
-        }
+        PrintTestResults(allResultsOverLimit);
       }
     }
 
-    if passed {
-      return Success(());
-    } else {
-      return Failure("\nErrors occurred: see above\n");
+    :- Need(passed, "\nErrors occurred: see above\n");
+
+    return Success(());
+  }
+
+  method PrintTestResults(results: seq<TestResult.TestResult>) {
+    for i := 0 to |results| {
+      print results[i].ToString(), "\n";
     }
   }
 

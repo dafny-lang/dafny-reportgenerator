@@ -19,11 +19,8 @@ module TestResult {
 
   datatype TestResult = TestResult(displayName: string, outcome: string, durationTicks: int64, resourceCount: nat) {
     function method ToString(): string {
-      match this
-      case TestResult(displayName, outcome, durationTicks, resourceCount) =>
-        // TODO: extern for formatting duration
-        displayName + "(" + outcome + ") - Duration = " + Externs.NatToString(resourceCount) +
-                                    ", Resource Count = " + Externs.DurationTicksToString(durationTicks)
+      displayName + "(" + outcome + ") - Duration = " + Externs.NatToString(resourceCount) +
+                                ", Resource Count = " + Externs.DurationTicksToString(durationTicks)
     }
   }
 

@@ -42,8 +42,7 @@ module StandardLibrary {
       s
     else
       var splitIndex := |s| / 2;
-      var left := s[..splitIndex];
-      var right := s[splitIndex..];
+      var left, right := s[..splitIndex], s[splitIndex..];
       assert s == left + right;
 
       var leftSorted := MergeSortBy(left, f);
