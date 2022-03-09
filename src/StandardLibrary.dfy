@@ -24,7 +24,9 @@ module StandardLibrary {
   // This version is all I need here, but this could be more general if a comparison function
   // was provided instead.
 
-  predicate SortedBy<T>(s: seq<T>, f: T -> int) {
+  // TODO: Make this a predicate-by-method so it has linear runtime instead of quadratic.
+  // For now it's only used at runtime in tests.
+  predicate method SortedBy<T>(s: seq<T>, f: T -> int) {
     forall i, j | 0 <= i < j < |s| :: f(s[i]) <= f(s[j])
   }
 
@@ -51,8 +53,7 @@ module StandardLibrary {
       MergeSortedBy(leftSorted, rightSorted, f)
   }
 
-  // TODO: How to add {:tailrecursion} while keeping the assertions necessary to prove the post-conditions?
-  function method MergeSortedBy<T>(left: seq<T>, right: seq<T>, f: T -> int): (result: seq<T>)
+  function method {:tailrecursion} MergeSortedBy<T>(left: seq<T>, right: seq<T>, f: T -> int): (result: seq<T>)
     requires SortedBy(left, f)
     requires SortedBy(right, f)
     ensures SortedBy(result, f)
@@ -63,15 +64,14 @@ module StandardLibrary {
     else if |right| == 0 then
       left
     else if f(right[0]) < f(left[0]) then
-      var rest := MergeSortedBy(left, right[1..], f);
-      var result := [right[0]] + rest;
-      LemmaNewFirstElementStillSortedBy(right[0], rest, f);
+      LemmaNewFirstElementStillSortedBy(right[0], MergeSortedBy(left, right[1..], f), f);
       assert right == [right[0]] + right[1..];
-      result
+
+      [right[0]] + MergeSortedBy(left, right[1..], f)
     else
-      var rest := MergeSortedBy(left[1..], right, f);
-      LemmaNewFirstElementStillSortedBy(left[0], rest, f);
+      LemmaNewFirstElementStillSortedBy(left[0], MergeSortedBy(left[1..], right, f), f);
       assert left == [left[0]] + left[1..];
-      [left[0]] + rest
+
+      [left[0]] +  MergeSortedBy(left[1..], right, f)
   }
 }
