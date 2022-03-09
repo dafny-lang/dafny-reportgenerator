@@ -1,0 +1,9 @@
+/.idea
+
+src/obj
+src/bin
+src/TestResults
+
+test/obj
+test/bin
+test/TestResults
