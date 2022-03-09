@@ -20,8 +20,7 @@ module StandardLibrary {
       [s]
   }
 
-  // TODO: These are not very generic since there's no type characteristic for "comparable".
-  // This version is all I need here, but this could be more general if a comparison function
+  // TODO: This version is all I need here, but this could be more general if a comparison function
   // was provided instead.
 
   // TODO: Make this a predicate-by-method so it has linear runtime instead of quadratic.

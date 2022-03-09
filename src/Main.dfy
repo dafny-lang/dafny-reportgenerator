@@ -43,6 +43,7 @@ module Main {
     }
     
     // Here I really wish I could use MapWithResult on a method-based Action instead of just a function :(
+    // See also https://github.com/dafny-lang/libraries/pull/29.
     var allResults := [];
     for pathIndex := 0 to |options.filePaths| {
       var resultsBatch :- ParseTestResults(options.filePaths[pathIndex]);
@@ -63,8 +64,7 @@ module Main {
       var allResultsOverLimit := Filter((r: TestResult.TestResult) => maxDurationTicks < r.durationTicks as int, allResultsSorted);
       if 0 < |allResultsOverLimit| {
         passed := false;
-        print "\n";
-        print "Some results have a duration over the configured limit of ", options.maxDurationSeconds.value, " second(s):\n\n";
+        print "\nSome results have a duration over the configured limit of ", options.maxDurationSeconds.value, " second(s):\n\n";
         PrintTestResults(allResultsOverLimit);
       }
     }
@@ -76,16 +76,14 @@ module Main {
       var allResultsWithZeroResourceCounts := Filter((r: TestResult.TestResult) => r.resourceCount == 0, allResultsSorted);
       if 0 < |allResultsWithZeroResourceCounts| {
         passed := false;
-        print "\n";
-        print "Some results have a resource count of zero:\n\n";
+        print "\nSome results have a resource count of zero:\n\n";
         PrintTestResults(allResultsWithZeroResourceCounts);
       }
 
       var allResultsOverLimit := Filter((r: TestResult.TestResult) => options.maxResourceCount.value < r.resourceCount, allResultsSorted);
       if 0 < |allResultsOverLimit| {
         passed := false;
-        print "\n";
-        print "Some results have a resource count over the configured limit of ", options.maxResourceCount.value, ":\n\n";
+        print "\nSome results have a resource count over the configured limit of ", options.maxResourceCount.value, ":\n\n";
         PrintTestResults(allResultsOverLimit);
       }
     }
