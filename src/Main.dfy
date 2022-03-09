@@ -36,6 +36,9 @@ module Main {
                              maxResourceCount: Option<nat> := None,
                              filePaths: seq<string> := [])
 
+  // TODO: It would be nice to return an `Outcome<string>` instead, but the current
+  // behavior of the `:-` elephant operator doesn't currently work that way.
+  // See https://github.com/dafny-lang/dafny/issues/1893.  
   method MainAux(args: seq<string>) returns (result: Result<(), string>) {
     var options :- ParseCommandLineOptions(args);
     if options.justHelpText {
