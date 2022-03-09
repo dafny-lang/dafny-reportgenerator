@@ -90,7 +90,7 @@ module Main {
       }
     }
 
-    :- Need(passed, "\nErrors occurred: see above\n");
+    :- Need(passed, "\nErrors occurred: see above for details.\n");
 
     return Success(());
   }

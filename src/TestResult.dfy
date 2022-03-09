@@ -19,8 +19,8 @@ module TestResult {
 
   datatype TestResult = TestResult(displayName: string, outcome: string, durationTicks: int64, resourceCount: nat) {
     function method ToString(): string {
-      displayName + "(" + outcome + ") - Duration = " + Externs.NatToString(resourceCount) +
-                                ", Resource Count = " + Externs.DurationTicksToString(durationTicks)
+      displayName + "(" + outcome + ") - Duration = " + Externs.DurationTicksToString(durationTicks) +
+                                ", Resource Count = " + Externs.NatToString(resourceCount)
     }
   }
 
