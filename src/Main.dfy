@@ -112,11 +112,11 @@ module Main {
   const helpText :=
       "usage: dafny-reportgenerator summarize-csv-results [--max-resource-count N] [--max-duration-seconds N] [file_paths ...]\n" +
       "\n" +
-      "file_paths                 CSV files produced from Dafny's /verificationLogger:csv feature\n" +
+      "file_paths                 CSV files produced from Dafny's /verificationLogger:csv feature.\n" +
       "                           Directory paths are also accepted, in which case all CSV files under all\n" +
       "                           \"TestResults\" descendant directories are included.\n" +
-      "--max-resource-count N     Fail if any results have a resource count over the given value\n" +
-      "--max-duration-seconds N   Fail if any results have a duration over the given value in seconds\n" +
+      "--max-resource-count N     Fail if any results have a resource count over the given value.\n" +
+      "--max-duration-seconds N   Fail if any results have a duration over the given value in seconds.\n" +
       "";
 
   method ParseCommandLineOptions(args: seq<string>) returns (result: Result<Options, string>) {
