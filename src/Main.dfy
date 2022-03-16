@@ -49,8 +49,15 @@ module Main {
     // See also https://github.com/dafny-lang/libraries/pull/29.
     var allResults := [];
     for pathIndex := 0 to |options.filePaths| {
-      var resultsBatch :- ParseTestResults(options.filePaths[pathIndex]);
-      allResults := allResults + resultsBatch;
+      // Find all **/TestResults/*.csv files if the given path is a directory.
+      // I would have liked to make the result a `set<string>` here instead of a `seq<string>`,
+      // to indicate that the ordering is not significant, but sets are currently difficult and
+      // expensive to traverse in pure Dafny. See https://github.com/dafny-lang/dafny/issues/424.
+      var matchingFiles :- Externs.FindAllCSVTestResultFiles(options.filePaths[pathIndex]);
+      for fileIndex := 0 to |matchingFiles| {
+        var resultsBatch :- ParseTestResults(matchingFiles[fileIndex]);
+        allResults := allResults + resultsBatch;
+      }
     }
 
     // Sort by the negative resource count in order to sort from highest to lowest

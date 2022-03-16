@@ -1,6 +1,8 @@
 
 using System.Numerics;
 using Dafny;
+using Microsoft.Extensions.FileSystemGlobbing;
+using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 using Wrappers_Compile;
 using icharseq = Dafny.ISequence<char>;
 using charseq = Dafny.Sequence<char>;
@@ -17,6 +19,26 @@ namespace Externs_Compile {
       Environment.ExitCode = exitCode;
     }
     
+    public static _IResult<ISequence<icharseq>, icharseq> FindAllCSVTestResultFiles(icharseq dafnyPath) {
+      var path = dafnyPath.ToString();
+      try {
+        ISequence<icharseq> result;
+        if (Directory.Exists(path)) {
+          var matcher = new Matcher();
+          matcher.AddInclude("**/TestResults/*.csv");
+          var matcherResult = matcher.Execute(new DirectoryInfoWrapper(new DirectoryInfo(path)));
+          result = Sequence<icharseq>.FromArray(matcherResult.Files.Select(file => 
+            charseq.FromString(Path.Join(path, file.Path))).ToArray());
+        } else {
+          result = Sequence<icharseq>.FromElements(dafnyPath);
+        }
+
+        return Result<ISequence<icharseq>, icharseq>.create_Success(result);
+      } catch (Exception e) {
+        return Result<ISequence<icharseq>, icharseq>.create_Failure(charseq.FromString(e.Message));
+      }
+    }
+
     public static _IResult<ISequence<icharseq>, icharseq> ReadAllFileLines(icharseq dafnyPath) {
       var path = dafnyPath.ToString();
       try {

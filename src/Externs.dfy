@@ -10,6 +10,7 @@ module Externs {
   method {:extern} GetCommandLineArgs() returns (args: seq<string>)
   method {:extern} SetExitCode(exitCode: uint8)
 
+  method {:extern} FindAllCSVTestResultFiles(path: string) returns (lines: Result<seq<string>, string>)
   method {:extern} ReadAllFileLines(path: string) returns (lines: Result<seq<string>, string>)
 
   function method {:extern} ParseNat(s: string): Result<nat, string>

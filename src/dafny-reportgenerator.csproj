@@ -5,10 +5,17 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>dafny_reportgenerator</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <PackageVersion>1.0.1</PackageVersion>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dafny-reportgenerator</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="dafny.msbuild" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
