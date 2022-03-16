@@ -6,7 +6,7 @@
     <RootNamespace>dafny_reportgenerator</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
 
-    <PackageVersion>1.0.1</PackageVersion>
+    <PackageVersion>1.1.0</PackageVersion>
 
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dafny-reportgenerator</ToolCommandName>
