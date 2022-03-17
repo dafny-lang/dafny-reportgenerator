@@ -30,7 +30,7 @@ were created by passing `/verificationLogger:csv` when invoking the `dafny` comm
 is set unrealistically low here, just to demonstrate the behavior when violated.
 
 ```
-> dafny-reportgenerator summarize-csv-results --max-resource-count 500000 src/TestResults/*.csv test/TestResults/*.csv
+> dafny-reportgenerator summarize-csv-results --max-resource-count 500000 .
 All results: 
 
 Impl$$Main.__default.ParseCommandLineOptions(Passed) - Duration = 00:00:00.1940000, Resource Count = 581969

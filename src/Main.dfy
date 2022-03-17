@@ -49,8 +49,15 @@ module Main {
     // See also https://github.com/dafny-lang/libraries/pull/29.
     var allResults := [];
     for pathIndex := 0 to |options.filePaths| {
-      var resultsBatch :- ParseTestResults(options.filePaths[pathIndex]);
-      allResults := allResults + resultsBatch;
+      // Find all **/TestResults/*.csv files if the given path is a directory.
+      // I would have liked to make the result a `set<string>` here instead of a `seq<string>`,
+      // to indicate that the ordering is not significant, but sets are currently difficult and
+      // expensive to traverse in pure Dafny. See https://github.com/dafny-lang/dafny/issues/424.
+      var matchingFiles :- Externs.FindAllCSVTestResultFiles(options.filePaths[pathIndex]);
+      for fileIndex := 0 to |matchingFiles| {
+        var resultsBatch :- ParseTestResults(matchingFiles[fileIndex]);
+        allResults := allResults + resultsBatch;
+      }
     }
 
     // Sort by the negative resource count in order to sort from highest to lowest
@@ -105,9 +112,11 @@ module Main {
   const helpText :=
       "usage: dafny-reportgenerator summarize-csv-results [--max-resource-count N] [--max-duration-seconds N] [file_paths ...]\n" +
       "\n" +
-      "file_paths                 CSV files produced from Dafny's /verificationLogger:csv feature\n" +
-      "--max-resource-count N     Fail if any results have a resource count over the given value\n" +
-      "--max-duration-seconds N   Fail if any results have a duration over the given value in seconds\n" +
+      "file_paths                 CSV files produced from Dafny's /verificationLogger:csv feature.\n" +
+      "                           Directory paths are also accepted, in which case all CSV files under all\n" +
+      "                           \"TestResults\" descendant directories are included.\n" +
+      "--max-resource-count N     Fail if any results have a resource count over the given value.\n" +
+      "--max-duration-seconds N   Fail if any results have a duration over the given value in seconds.\n" +
       "";
 
   method ParseCommandLineOptions(args: seq<string>) returns (result: Result<Options, string>) {
