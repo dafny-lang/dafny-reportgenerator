@@ -36,6 +36,7 @@ jobs:
       # more times and calculating statistics
       run: |
         for iter in 1 2 3 4 5; do
-          dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:csv"
+          dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2
+          -p:TestVerifyOverride="verificationLogger:csv" -p:TestVerifyOverride="randomSeed:$iter"
         done
         dotnet run --project src -- summarize-csv-results --max-resource-stddev 100 .
