@@ -30,7 +30,7 @@ jobs:
     - name: Self Report
       # Generates a report based on the logged data from verifying itself.
       # This is both a guard against unstable verification and a smoke test of the tool itself.
-      run: dotnet run --project src -- summarize-csv-results --max-resource-count 1000000 .
+      run: dotnet run --project src -- summarize-csv-results --max-resource-count 1500000 .
     - name: Stability Analysis
       # Analyzes the stability of verification by running it several
       # more times and calculating statistics
