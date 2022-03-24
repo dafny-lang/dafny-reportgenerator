@@ -31,3 +31,11 @@ jobs:
       # Generates a report based on the logged data from verifying itself.
       # This is both a guard against unstable verification and a smoke test of the tool itself.
       run: dotnet run --project src -- summarize-csv-results --max-resource-count 1000000 .
+    - name: Stability Analysis
+      # Analyzes the stability of verification by running it several
+      # more times and calculating statistics
+      run: |
+        for iter in 1 2 3 4 5; do
+          dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:csv"
+        done
+        dotnet run --project src -- summarize-csv-results --max-resource-stddev 100 .
