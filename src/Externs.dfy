@@ -17,6 +17,9 @@ module Externs {
   function method {:extern} NatToString(n: nat): string
   function method {:extern} ParseDurationTicks(s: string): Result<int64, string>
   function method {:extern} DurationTicksToString(n: int64): string
+  function method {:extern} RealToString(n: real): string
+
+  function method {:extern} Sqrt(n: real): real
 
   const DurationTicksPerSecond := 10_000_000;
 }
