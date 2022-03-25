@@ -6,6 +6,7 @@ include "../libraries/src/Collections/Maps/Maps.dfy"
 
 include "CSV.dfy"
 include "Externs.dfy"
+include "StandardLibrary.dfy"
 include "Statistics.dfy"
 
 module TestResult {
@@ -17,6 +18,7 @@ module TestResult {
   import CSV
   import Maps
   import Seq
+  import StandardLibrary
   import Statistics
 
   datatype TestResult = TestResult(displayName: string, outcome: string, durationTicks: int64, resourceCount: nat) {
@@ -67,16 +69,14 @@ module TestResult {
 
   function method TestResultStatistics(results: seq<TestResult>, f: TestResult -> int): Statistics.Statistics
   {
-    match 0 < |results| {
-      case true =>
-        var min := Seq.Min(Seq.Map(f, results));
-        var max := Seq.Max(Seq.Map(f, results));
-        var mean := Statistics.Mean(Seq.Map(x => f(x) as real, results));
-        var stddev := Statistics.StdDev(Seq.Map(x => f(x) as real, results));
-        Statistics.Statistics(min as real, max as real, mean, stddev)
-      case false =>
-        Statistics.Statistics(0.0, 0.0, 0.0, 0.0)
-    }
+    if 0 < |results| then
+      var min := Seq.Min(Seq.Map(f, results));
+      var max := Seq.Max(Seq.Map(f, results));
+      var mean := Statistics.Mean(Seq.Map(x => f(x) as real, results));
+      var stddev := Statistics.StdDev(Seq.Map(x => f(x) as real, results));
+      Statistics.Statistics(min as real, max as real, mean, stddev)
+    else
+      Statistics.Statistics(0.0, 0.0, 0.0, 0.0)
   }
 
   function method TestResultDurationStatistics(results: seq<TestResult>): Statistics.Statistics
@@ -112,21 +112,10 @@ module TestResult {
     }
   }
 
-  // TODO: there must be an easier way to fold a function over a map
-  method MapResultGroups<T>(groupedResults: map<string, seq<TestResult>>, f: (string, seq<TestResult>) -> T)
-    returns (res: seq <(string, T)>)
+  method MapResultGroups<T(==)>(groupedResults: map<string, seq<TestResult>>, f: (string, seq<TestResult>) -> T)
+      returns (res: seq <(string, T)>)
   {
-    var resultBatches := groupedResults.Items;
-    res := [];
-    while resultBatches != {}
-      decreases |resultBatches|
-    {
-      var resultBatch :| resultBatch in resultBatches;
-      resultBatches := resultBatches - {resultBatch};
-      if 0 < |resultBatch.1| { // TODO: could prove that this never happens
-        res := res + [(resultBatch.0, f(resultBatch.0, resultBatch.1))];
-      }
-    }
+    res := StandardLibrary.MapToSeq(map k | k in groupedResults :: f(k, groupedResults[k]));
   }
 
   method ResultGroupResourceStddevs(groupedResults: map<string, seq<TestResult>>)

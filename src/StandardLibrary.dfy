@@ -73,4 +73,24 @@ module StandardLibrary {
 
       [left[0]] +  MergeSortedBy(left[1..], right, f)
   }
+
+  method SetToSeq<T>(s: set<T>)
+    returns (resultSeq: seq<T>)
+  {
+    var entrySet := s;
+    resultSeq := [];
+    while entrySet != {}
+      decreases |entrySet|
+    {
+      var entry :| entry in entrySet;
+      entrySet := entrySet - {entry};
+      resultSeq := resultSeq + [entry];
+    }
+  }
+
+  method MapToSeq<K(==), V(==)>(m: map<K, V>)
+    returns (resultSeq: seq<(K, V)>)
+  {
+    resultSeq := SetToSeq(m.Items);
+  }
 }
