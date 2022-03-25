@@ -34,8 +34,8 @@ module Main {
   datatype Options = Options(justHelpText: bool := false,
                              maxDurationSeconds: Option<nat> := None, 
                              maxResourceCount: Option<nat> := None,
-                             maxDurationStddev: Option<nat> := None,
-                             maxResourceStddev: Option<nat> := None,
+                             maxDurationStddev: Option<real> := None,
+                             maxResourceStddev: Option<real> := None,
                              filePaths: seq<string> := [])
 
   // TODO: It would be nice to return an `Outcome<string>` instead, but the current
@@ -110,12 +110,12 @@ module Main {
 
     if options.maxDurationStddev.Some? {
       var stddevs := ResultGroupDurationStddevs(groupedResults);
-      passed := PrintExceedingStddevs("duration", stddevs, options.maxDurationStddev.value as real);
+      passed := PrintExceedingStddevs("duration", stddevs, options.maxDurationStddev.value);
     }
 
     if options.maxResourceStddev.Some? {
       var stddevs := ResultGroupResourceStddevs(groupedResults);
-      passed := PrintExceedingStddevs("resource count", stddevs, options.maxResourceStddev.value as real);
+      passed := PrintExceedingStddevs("resource count", stddevs, options.maxResourceStddev.value);
     }
 
     :- Need(passed, "\nErrors occurred: see above for details.\n");
@@ -174,8 +174,8 @@ module Main {
 
     var maxResourceCount: Option<nat> := None;
     var maxDurationSeconds: Option<nat> := None;
-    var maxResourceStddev: Option<nat> := None;
-    var maxDurationStddev: Option<nat> := None;
+    var maxResourceStddev: Option<real> := None;
+    var maxDurationStddev: Option<real> := None;
     var filePaths: seq<string> := [];
     var argIndex := 2;
     while argIndex < |args| {
@@ -190,20 +190,20 @@ module Main {
         case "--max-duration-seconds" => {
           :- Need(argIndex + 1 < |args|, "--max-duration-seconds must be followed by an argument\n\n" + helpText);
           argIndex := argIndex + 1;
-          var count :- Externs.ParseNat(args[argIndex]);
-          maxDurationSeconds := Some(count);
+          var seconds :- Externs.ParseNat(args[argIndex]);
+          maxDurationSeconds := Some(seconds);
         }
         case "--max-resource-stddev" => {
           :- Need(argIndex + 1 < |args|, "--max-resource-stddev must be followed by an argument\n\n" + helpText);
           argIndex := argIndex + 1;
           var count :- Externs.ParseNat(args[argIndex]);
-          maxResourceStddev := Some(count);
+          maxResourceStddev := Some(count as real);
         }
         case "--max-duration-stddev" => {
           :- Need(argIndex + 1 < |args|, "--max-duration-stddev must be followed by an argument\n\n" + helpText);
           argIndex := argIndex + 1;
-          var count :- Externs.ParseNat(args[argIndex]);
-          maxDurationStddev := Some(count);
+          var seconds :- Externs.ParseNat(args[argIndex]);
+          maxDurationStddev := Some((seconds * Externs.DurationTicksPerSecond) as real);
         }
         case _ => {
           filePaths := filePaths + [arg];

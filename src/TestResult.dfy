@@ -67,35 +67,35 @@ module TestResult {
     }
   }
 
-  function method TestResultStatistics(results: seq<TestResult>, f: TestResult -> int): Statistics.Statistics
+  function method TestResultStatistics(results: seq<TestResult>, f: TestResult -> real): Statistics.Statistics
   {
     if 0 < |results| then
-      var min := Seq.Min(Seq.Map(f, results));
-      var max := Seq.Max(Seq.Map(f, results));
-      var mean := Statistics.Mean(Seq.Map(x => f(x) as real, results));
-      var stddev := Statistics.StdDev(Seq.Map(x => f(x) as real, results));
-      Statistics.Statistics(min as real, max as real, mean, stddev)
+      var min := StandardLibrary.MinRealSeq(Seq.Map(f, results));
+      var max := StandardLibrary.MaxRealSeq(Seq.Map(f, results));
+      var mean := Statistics.Mean(Seq.Map(x => f(x), results));
+      var stddev := Statistics.StdDev(Seq.Map(x => f(x), results));
+      Statistics.Statistics(min, max, mean, stddev)
     else
       Statistics.Statistics(0.0, 0.0, 0.0, 0.0)
   }
 
   function method TestResultDurationStatistics(results: seq<TestResult>): Statistics.Statistics
   {
-    TestResultStatistics(results, (result: TestResult) => result.durationTicks as int)
+    TestResultStatistics(results, (result: TestResult) => result.durationTicks as real)
   }
 
   function method TestResultResourceStatistics(results: seq<TestResult>): Statistics.Statistics
   {
-    TestResultStatistics(results, (result: TestResult) => result.resourceCount)
+    TestResultStatistics(results, (result: TestResult) => result.resourceCount as real)
   }
 
   method PrintTestResultStatistics(displayName: string, results: seq<TestResult>)
   {
-    var timeStats := TestResultStatistics(results, (r: TestResult) => r.durationTicks as int);
-    var resStats := TestResultStatistics(results, (r: TestResult) => r.resourceCount as int);
+    var timeStats := TestResultStatistics(results, (r: TestResult) => r.durationTicks as real);
+    var resStats := TestResultStatistics(results, (r: TestResult) => r.resourceCount as real);
     print displayName, "\n";
-    print "  Time - ", Statistics.StatisticsToSeconds(timeStats).ToString(), "\n";
-    print "  Resource Count - ", resStats.ToString(), "\n";
+    print "  Time (seconds) - ", Statistics.StatisticsToSeconds(timeStats).ToString(), "\n";
+    print "  Resource count - ", resStats.ToString(), "\n";
   }
 
   method PrintAllTestResultStatistics(groupedResults: map<string, seq<TestResult>>)

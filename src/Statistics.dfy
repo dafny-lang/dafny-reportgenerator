@@ -44,7 +44,7 @@ module Statistics {
       stats.min / Externs.DurationTicksPerSecond as real,
       stats.max / Externs.DurationTicksPerSecond as real,
       stats.mean / Externs.DurationTicksPerSecond as real,
-      stats.stddev/ Externs.DurationTicksPerSecond as real
+      stats.stddev / Externs.DurationTicksPerSecond as real
     )
   }
 }
