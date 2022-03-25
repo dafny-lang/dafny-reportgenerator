@@ -112,7 +112,7 @@ module TestResult {
     }
   }
 
-  // TODO: there must be an easier way to map a function over a map
+  // TODO: there must be an easier way to fold a function over a map
   method MapResultGroups<T>(groupedResults: map<string, seq<TestResult>>, f: (string, seq<TestResult>) -> T)
     returns (res: seq <(string, T)>)
   {

@@ -110,33 +110,31 @@ module Main {
 
     if options.maxDurationStddev.Some? {
       var stddevs := ResultGroupDurationStddevs(groupedResults);
-      var exceedingStddevs := Filter((t:(string, real)) => options.maxDurationStddev.value as real < t.1, stddevs);
-      if 0 < |exceedingStddevs| {
-        passed := false;
-        print "\nSome results have a duration standard deviation over the configured limit of ", options.maxDurationStddev.value, ":\n\n";
-        for resIdx := 0 to |exceedingStddevs| {
-          var t : (string, real) := exceedingStddevs[resIdx];
-          print t.0, ": stddev = ", Externs.RealToString(t.1), "\n";
-        }
-      }
+      passed := PrintExceedingStddevs("duration", stddevs, options.maxDurationStddev.value as real);
     }
 
     if options.maxResourceStddev.Some? {
       var stddevs := ResultGroupResourceStddevs(groupedResults);
-      var exceedingStddevs := Filter((t:(string, real)) => options.maxResourceStddev.value as real < t.1, stddevs);
-      if 0 < |exceedingStddevs| {
-        passed := false;
-        print "\nSome results have a resource count standard deviation over the configured limit of ", options.maxResourceStddev.value, ":\n\n";
-        for resIdx := 0 to |exceedingStddevs| {
-          var t : (string, real) := exceedingStddevs[resIdx];
-          print t.0, ": stddev = ", Externs.RealToString(t.1), "\n";
-        }
-      }
+      passed := PrintExceedingStddevs("resource count", stddevs, options.maxResourceStddev.value as real);
     }
 
     :- Need(passed, "\nErrors occurred: see above for details.\n");
 
     return Success(());
+  }
+
+  method PrintExceedingStddevs(description: string, stddevs: seq<(string, real)>, limit: real) returns (passed: bool) {
+      var exceedingStddevs := Filter((t:(string, real)) => limit < t.1, stddevs);
+      if 0 < |exceedingStddevs| {
+        passed := false;
+        print "\nSome results have a ", description, " standard deviation over the configured limit of ", limit, ":\n\n";
+        for resIdx := 0 to |exceedingStddevs| {
+          var t : (string, real) := exceedingStddevs[resIdx];
+          print t.0, ": stddev = ", Externs.RealToString(t.1), "\n";
+        }
+      } else {
+        passed := true;
+      }
   }
 
   method PrintTestResults(results: seq<TestResult.TestResult>) {
