@@ -73,4 +73,59 @@ module StandardLibrary {
 
       [left[0]] +  MergeSortedBy(left[1..], right, f)
   }
+
+  method SetToSeq<T>(s: set<T>)
+    returns (resultSeq: seq<T>)
+  {
+    var entrySet := s;
+    resultSeq := [];
+    while entrySet != {}
+      decreases |entrySet|
+    {
+      var entry :| entry in entrySet;
+      entrySet := entrySet - {entry};
+      resultSeq := resultSeq + [entry];
+    }
+  }
+
+  method MapToSeq<K(==), V(==)>(m: map<K, V>)
+    returns (resultSeq: seq<(K, V)>)
+  {
+    resultSeq := SetToSeq(m.Items);
+  }
+
+  function method MinReal(a: real, b: real): real
+  {
+    if a < b
+      then a
+    else
+      b
+  }
+
+  function method MaxReal(a: real, b: real): real
+  {
+    if a < b
+      then b
+    else
+      a
+  }
+
+  function method {:opaque} MinRealSeq(s: seq<real>): real
+    requires 0 < |s|
+    ensures forall k {:trigger k in s} :: k in s ==> MinRealSeq(s) <= k
+    ensures MinRealSeq(s) in s
+  {
+    assert s == [s[0]] + s[1..];
+    if |s| == 1 then s[0] else MinReal(s[0], MinRealSeq(s[1..]))
+  }
+
+  function method {:opaque} MaxRealSeq(s: seq<real>): real
+    requires 0 < |s|
+    ensures forall k {:trigger k in s} :: k in s ==> k <= MaxRealSeq(s)
+    ensures MaxRealSeq(s) in s
+  {
+    assert s == [s[0]] + s[1..];
+    if |s| == 1 then s[0] else MaxReal(s[0], MaxRealSeq(s[1..]))
+  }
+
 }

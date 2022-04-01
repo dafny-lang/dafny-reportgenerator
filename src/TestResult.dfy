@@ -6,6 +6,7 @@ include "../libraries/src/Collections/Maps/Maps.dfy"
 
 include "CSV.dfy"
 include "Externs.dfy"
+include "StandardLibrary.dfy"
 include "Statistics.dfy"
 
 module TestResult {
@@ -17,6 +18,7 @@ module TestResult {
   import CSV
   import Maps
   import Seq
+  import StandardLibrary
   import Statistics
 
   datatype TestResult = TestResult(displayName: string, outcome: string, durationTicks: int64, resourceCount: nat) {
@@ -65,37 +67,35 @@ module TestResult {
     }
   }
 
-  function method TestResultStatistics(results: seq<TestResult>, f: TestResult -> int): Statistics.Statistics
+  function method TestResultStatistics(results: seq<TestResult>, f: TestResult -> real): Statistics.Statistics
   {
-    match 0 < |results| {
-      case true =>
-        var min := Seq.Min(Seq.Map(f, results));
-        var max := Seq.Max(Seq.Map(f, results));
-        var mean := Statistics.Mean(Seq.Map(x => f(x) as real, results));
-        var stddev := Statistics.StdDev(Seq.Map(x => f(x) as real, results));
-        Statistics.Statistics(min as real, max as real, mean, stddev)
-      case false =>
-        Statistics.Statistics(0.0, 0.0, 0.0, 0.0)
-    }
+    if 0 < |results| then
+      var min := StandardLibrary.MinRealSeq(Seq.Map(f, results));
+      var max := StandardLibrary.MaxRealSeq(Seq.Map(f, results));
+      var mean := Statistics.Mean(Seq.Map(x => f(x), results));
+      var stddev := Statistics.StdDev(Seq.Map(x => f(x), results));
+      Statistics.Statistics(min, max, mean, stddev)
+    else
+      Statistics.Statistics(0.0, 0.0, 0.0, 0.0)
   }
 
   function method TestResultDurationStatistics(results: seq<TestResult>): Statistics.Statistics
   {
-    TestResultStatistics(results, (result: TestResult) => result.durationTicks as int)
+    TestResultStatistics(results, (result: TestResult) => result.durationTicks as real)
   }
 
   function method TestResultResourceStatistics(results: seq<TestResult>): Statistics.Statistics
   {
-    TestResultStatistics(results, (result: TestResult) => result.resourceCount)
+    TestResultStatistics(results, (result: TestResult) => result.resourceCount as real)
   }
 
   method PrintTestResultStatistics(displayName: string, results: seq<TestResult>)
   {
-    var timeStats := TestResultStatistics(results, (r: TestResult) => r.durationTicks as int);
-    var resStats := TestResultStatistics(results, (r: TestResult) => r.resourceCount as int);
+    var timeStats := TestResultStatistics(results, (r: TestResult) => r.durationTicks as real);
+    var resStats := TestResultStatistics(results, (r: TestResult) => r.resourceCount as real);
     print displayName, "\n";
-    print "  Time - ", Statistics.StatisticsToSeconds(timeStats).ToString(), "\n";
-    print "  Resource Count - ", resStats.ToString(), "\n";
+    print "  Time (seconds) - ", Statistics.StatisticsToSeconds(timeStats).ToString(), "\n";
+    print "  Resource count - ", resStats.ToString(), "\n";
   }
 
   method PrintAllTestResultStatistics(groupedResults: map<string, seq<TestResult>>)
@@ -112,21 +112,10 @@ module TestResult {
     }
   }
 
-  // TODO: there must be an easier way to fold a function over a map
-  method MapResultGroups<T>(groupedResults: map<string, seq<TestResult>>, f: (string, seq<TestResult>) -> T)
-    returns (res: seq <(string, T)>)
+  method MapResultGroups<T(==)>(groupedResults: map<string, seq<TestResult>>, f: (string, seq<TestResult>) -> T)
+      returns (res: seq <(string, T)>)
   {
-    var resultBatches := groupedResults.Items;
-    res := [];
-    while resultBatches != {}
-      decreases |resultBatches|
-    {
-      var resultBatch :| resultBatch in resultBatches;
-      resultBatches := resultBatches - {resultBatch};
-      if 0 < |resultBatch.1| { // TODO: could prove that this never happens
-        res := res + [(resultBatch.0, f(resultBatch.0, resultBatch.1))];
-      }
-    }
+    res := StandardLibrary.MapToSeq(map k | k in groupedResults :: f(k, groupedResults[k]));
   }
 
   method ResultGroupResourceStddevs(groupedResults: map<string, seq<TestResult>>)
