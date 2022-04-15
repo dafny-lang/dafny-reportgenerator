@@ -25,6 +25,26 @@ There are currently two different metrics that you can set a maximum bound on:
    an `:rlimit` parameter, although the SMT-LIB standard introduces a similar `:reproducible-resource-limit` parameter 
    as of version 2.5 (https://smtlib.cs.uiowa.edu/papers/smt-lib-reference-v2.5-r2015-06-28.pdf, page 54).
 
+3. `--max-duration-stddev N`
+
+    Bounds the standard deviation of multiple measurements of the
+    wall-clock time needed to complete a verification task. This option
+    is especially useful for measuring the stability of verification
+    when varying the `/randomSeed` parameter to Dafny. The output will
+    only be meaningful if the collection of CSV files being analyzed
+    includes results from more than one Dafny run. This will be true if
+    you've run Dafny more than once on the same set of input files with
+    without explicitly specifying a CSV output file name and without
+    deleting the `TestResults` directory or any of its contents between
+    runs.
+
+4. `--max-resource-stddev N`
+
+    Bounds the standard deviation of multiple measurements of the
+    solver "resources" needed to complete a verification task. This is
+    similar to `--max-duration-stddev` but more stable between different
+    runs and across different platforms.
+
 Here is an example of the output of this tool when run against the results of verifying itself. The CSV files
 were created by passing `/verificationLogger:csv` when invoking the `dafny` command-line tool. The maximum resource count
 is set unrealistically low here, just to demonstrate the behavior when violated.
