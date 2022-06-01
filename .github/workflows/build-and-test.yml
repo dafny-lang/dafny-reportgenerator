@@ -41,6 +41,6 @@ jobs:
         SDFYS=`find src -name "*.dfy"`
         TDFYS=`find test -name "*.dfy"`
         for seed in 1 2 3 4 5; do
-          dafny /compile:0 /verificationLogger:csv /randomSeed:$seed ${SDFYS} ${TDFYS}
+          dafny /compile:0 /timeLimit:30 /verificationLogger:csv /randomSeed:$seed ${SDFYS} ${TDFYS}
         done
         dotnet run --project src -- summarize-csv-results --max-resource-stddev 100000 .
