@@ -68,7 +68,9 @@ module Main {
 
     // Group the results by name, for aggregate statistics
     var groupedResults := GroupTestResults(allResultsSorted);
-    
+    var groupedResultConsistency := ResultGroupConsistency(groupedResults);
+    var inconsistentResults := Filter((r: (string, bool)) => !r.1, groupedResultConsistency);
+
     if options.maxResourceStddev.Some? || options.maxDurationStddev.Some? {
       print "All results (statistics):\n\n";
       PrintAllTestResultStatistics(groupedResults);
@@ -116,6 +118,14 @@ module Main {
     if options.maxResourceStddev.Some? {
       var stddevs := ResultGroupResourceStddevs(groupedResults);
       passed := PrintExceedingStddevs("resource count", stddevs, options.maxResourceStddev.value);
+    }
+
+    if |inconsistentResults| > 0 {
+      print "The following results have inconsistent outcomes:\n";
+      for i := 0 to |inconsistentResults| {
+        print "  ", inconsistentResults[i].1, "\n";
+      }
+      passed := false;
     }
 
     :- Need(passed, "\nErrors occurred: see above for details.\n");
