@@ -22,7 +22,7 @@ jobs:
     - name: Set up Dafny
       uses: dafny-lang/setup-dafny-action@v1
       with:
-        dafny-version: "3.4.2"
+        dafny-version: "3.7.0"
     - name: Verify Dafny code
       run: dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:csv"
     - name: Run Tests
@@ -38,9 +38,7 @@ jobs:
       # Runs Dafny directly because it doesn't seem like we can pass
       # multiple arguments to it through MSBuild.
       run: |
-        SDFYS=`find src -name "*.dfy"`
-        TDFYS=`find test -name "*.dfy"`
-        for seed in 1 2 3 4 5; do
-          dafny /compile:0 /timeLimit:30 /verificationLogger:csv /randomSeed:$seed ${SDFYS} ${TDFYS}
-        done
+        SRC_DFYS=`find src -name "*.dfy"`
+        TEST_DFYS=`find test -name "*.dfy"`
+        dafny /compile:0 /timeLimit:30 /verificationLogger:csv /randomSeedIterations:5 ${SRC_DFYS} ${TEST_DFYS}
         dotnet run --project src -- summarize-csv-results --max-resource-stddev 100000 .
