@@ -22,7 +22,7 @@ jobs:
     - name: Set up Dafny
       uses: dafny-lang/setup-dafny-action@v1
       with:
-        dafny-version: "3.7.0"
+        dafny-version: "3.7.1"
     - name: Verify Dafny code
       run: dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:csv"
     - name: Run Tests
