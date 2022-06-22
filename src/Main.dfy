@@ -113,6 +113,17 @@ module Main {
       }
     }
 
+    passed := PrintStatistics(options, groupedResults, passed);
+
+    :- Need(passed, "\nErrors occurred: see above for details.\n");
+
+    return Success(());
+  }
+
+  method PrintStatistics(options: Options, groupedResults: map<string, seq<TestResult.TestResult>>, initialPassed: bool)
+    returns (passed: bool)
+  {
+    passed := initialPassed;
     if options.maxDurationStddev.Some? {
       var stddevs := ResultGroupStatistics(groupedResults, results => TestResultDurationStatistics(results).stddev);
       passed := PrintExceedingValues("duration standard deviation", stddevs, options.maxDurationStddev.value);
@@ -132,10 +143,6 @@ module Main {
       var varcoefs := ResultGroupStatistics(groupedResults, results => TestResultResourceStatistics(results).CoefficientOfVariance());
       passed := PrintExceedingValues("resource coeff. of var.", varcoefs, options.maxResourceVarCoef.value);
     }
-
-    :- Need(passed, "\nErrors occurred: see above for details.\n");
-
-    return Success(());
   }
 
   method PrintExceedingValues(description: string, values: seq<(string, real)>, limit: real) returns (passed: bool) {
@@ -184,6 +191,15 @@ module Main {
       "                           as an integer percentage).\n" +
       "";
 
+  method ParseCommandLineNat(args: seq<string>, argIndex: nat)
+    returns (result: Result<nat, string>)
+    requires argIndex < |args|
+  {
+    :- Need(argIndex + 1 < |args|, args[argIndex] + " must be followed by an argument\n\n" + helpText);
+    var val :- Externs.ParseNat(args[argIndex + 1]);
+    return Success(val);
+  }
+
   method ParseCommandLineOptions(args: seq<string>) returns (result: Result<Options, string>) {
     :- Need(|args| >= 2, "Not enough arguments.");
 
@@ -207,39 +223,33 @@ module Main {
       var arg := args[argIndex];
       match arg {
         case "--max-resource-count" => {
-          :- Need(argIndex + 1 < |args|, "--max-resource-count must be followed by an argument\n\n" + helpText);
+          var count :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          var count :- Externs.ParseNat(args[argIndex]);
           maxResourceCount := Some(count);
         }
         case "--max-duration-seconds" => {
-          :- Need(argIndex + 1 < |args|, "--max-duration-seconds must be followed by an argument\n\n" + helpText);
+          var seconds :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          var seconds :- Externs.ParseNat(args[argIndex]);
           maxDurationSeconds := Some(seconds);
         }
         case "--max-resource-stddev" => {
-          :- Need(argIndex + 1 < |args|, "--max-resource-stddev must be followed by an argument\n\n" + helpText);
+          var count :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          var count :- Externs.ParseNat(args[argIndex]);
           maxResourceStddev := Some(count as real);
         }
         case "--max-resource-varcoef" => {
-          :- Need(argIndex + 1 < |args|, "--max-resource-varcoef must be followed by an argument\n\n" + helpText);
+          var pct :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          var pct :- Externs.ParseNat(args[argIndex]);
           maxResourceVarCoef := Some(pct as real / 100.0);
         }
         case "--max-duration-stddev" => {
-          :- Need(argIndex + 1 < |args|, "--max-duration-stddev must be followed by an argument\n\n" + helpText);
+          var seconds :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          var seconds :- Externs.ParseNat(args[argIndex]);
           maxDurationStddev := Some((seconds * Externs.DurationTicksPerSecond) as real);
         }
         case "--max-duration-varcoef" => {
-          :- Need(argIndex + 1 < |args|, "--max-duration-varcoef must be followed by an argument\n\n" + helpText);
+          var pct :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          var pct :- Externs.ParseNat(args[argIndex]);
           maxDurationVarCoef := Some(pct as real / 100.0);
         }
         case _ => {
