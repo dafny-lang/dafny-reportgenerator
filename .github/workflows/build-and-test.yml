@@ -41,4 +41,8 @@ jobs:
         for seed in 1 2 3 4 5; do
           (cd src && dafny /compile:0 /timeLimit:30 /verificationLogger:csv /randomSeed:$seed Main.dfy)
         done
-        dotnet run --project src -- summarize-csv-results --max-resource-stddev 100000 .
+        # The following limits are actually quite high, but the
+        # libraries repo contributes most of the tricky code. Let's
+        # improve that code and then hopefully lower these limits.
+        dotnet run --project src -- summarize-csv-results --max-resource-stddev 550000 .
+        dotnet run --project src -- summarize-csv-results --max-resource-varcoef 65 .
