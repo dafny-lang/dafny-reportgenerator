@@ -123,7 +123,7 @@ module Main {
     if |inconsistentResults| > 0 {
       print "The following results have inconsistent outcomes:\n";
       for i := 0 to |inconsistentResults| {
-        print "  ", inconsistentResults[i].1, "\n";
+        print "  ", inconsistentResults[i].0, "\n";
       }
       passed := false;
     }
