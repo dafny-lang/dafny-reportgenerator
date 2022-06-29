@@ -68,7 +68,7 @@ module TestResult {
   }
 
   predicate method ConsistentOutcomes(results: seq<TestResult>) {
-    |Seq.ToSet(Seq.Map((result : TestResult) => result.outcome, results))| == 1
+    |set result <- results :: result.outcome| == 1
   }
 
   function method TestResultStatistics(results: seq<TestResult>, f: TestResult -> real): Statistics.Statistics
