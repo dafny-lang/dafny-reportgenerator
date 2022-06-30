@@ -11,6 +11,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dafny-reportgenerator</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
