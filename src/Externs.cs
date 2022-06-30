@@ -63,51 +63,16 @@ namespace Externs_Compile {
       return charseq.FromString(n.ToString());
     }
 
-    private static bool TryBigRationalToDouble(BigRational r, out Double d) {
-      // This is kind of ridiculous. We could certainly improve the BigRational
-      // class to make stuff like this easier. Conversion to and from `double`
-      // would probably be worth including.
-      string rStr = r.ToString();
-      double num, den;
-      if(Double.TryParse(rStr, out var result)) {
-        d = result;
-        return true;
-      }
-      var parts = r.ToString().Trim(new char[] {'(', ')'}).Split('/', StringSplitOptions.TrimEntries);
-      if(parts.Length != 2) {
-        d = 0.0;
-        return false;
-      }
-      if(!Double.TryParse(parts[0], out num)) {
-        d = 0.0;
-        return false;
-      }
-      if(!Double.TryParse(parts[1], out den)) {
-        d = 0.0;
-        return false;
-      }
-      d = num / den;
-      return true;
+    private static Double BigRationalToDouble(BigRational r) {
+      return (double)r.num / (double)r.den;
     }
 
     public static icharseq RealToString(BigRational r) {
-      if(TryBigRationalToDouble(r, out var d)) {
-        return charseq.FromString(d.ToString());
-      } else {
-        return charseq.FromString("Failed to convert real to string");
-      }
+      return charseq.FromString(BigRationalToDouble(r).ToString());
     }
 
     public static BigRational Sqrt(BigRational r) {
-      if(TryBigRationalToDouble(r, out var d)) {
-        var sqrt = Math.Sqrt(d);
-        double multiplier = 1000000000.0;
-        return new BigRational(
-                 new BigInteger(sqrt * multiplier),
-                 new BigInteger((long)multiplier));
-      } else {
-        return new BigRational(-1, 1);
-      }
+      return new BigRational(Math.Sqrt(BigRationalToDouble(r)));
     }
 
     public static _IResult<long, icharseq> ParseDurationTicks(icharseq dafnyString) {

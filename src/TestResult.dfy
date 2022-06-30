@@ -67,6 +67,10 @@ module TestResult {
     }
   }
 
+  predicate method ConsistentOutcomes(results: seq<TestResult>) {
+    |set result <- results :: result.outcome| == 1
+  }
+
   function method TestResultStatistics(results: seq<TestResult>, f: TestResult -> real): Statistics.Statistics
   {
     if 0 < |results| then
@@ -91,11 +95,12 @@ module TestResult {
 
   method PrintTestResultStatistics(displayName: string, results: seq<TestResult>)
   {
-    var timeStats := TestResultStatistics(results, (r: TestResult) => r.durationTicks as real);
-    var resStats := TestResultStatistics(results, (r: TestResult) => r.resourceCount as real);
+    var timeStats := TestResultDurationStatistics(results);
+    var resStats := TestResultResourceStatistics(results);
     print displayName, "\n";
     print "  Time (seconds) - ", Statistics.StatisticsToSeconds(timeStats).ToString(), "\n";
     print "  Resource count - ", resStats.ToString(), "\n";
+    print "  Consistent outcomes - ", ConsistentOutcomes(results), "\n";
   }
 
   method PrintAllTestResultStatistics(groupedResults: map<string, seq<TestResult>>)
@@ -122,5 +127,11 @@ module TestResult {
     returns (res: seq <(string, real)>)
   {
     res := MapResultGroups(groupedResults, (name, results) => f(results));
+  }
+
+  method ResultGroupConsistency(groupedResults: map<string, seq<TestResult>>)
+    returns (res: seq <(string, bool)>)
+  {
+    res := MapResultGroups(groupedResults, (name, results) => ConsistentOutcomes(results));
   }
 }
