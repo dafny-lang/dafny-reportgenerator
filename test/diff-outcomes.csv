@@ -1,0 +1,5 @@
+TestResult.DisplayName,TestResult.Outcome,TestResult.Duration,TestResult.ResourceCount
+Proc1,Passed,00:00:00.9390000,1907774
+Proc1,Failed,00:00:00.9390000,1907774
+Proc2,Passed,00:00:00.9390000,1907774
+Proc2,Passed,00:00:00.9390000,1907774
