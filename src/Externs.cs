@@ -64,7 +64,7 @@ namespace Externs_Compile {
     }
 
     private static Double BigRationalToDouble(BigRational r) {
-      if (r.den == 0) {
+      if (r.num == 0) {
         return 0.0;
       } else {
         return (double)r.num / (double)r.den;
