@@ -36,10 +36,10 @@ module Statistics {
     function method ToString(): string {
       "min: " + Externs.RealToString(min) + ", max: " + Externs.RealToString(max) +
       ", mean: " + Externs.RealToString(mean) + ", stddev: " + Externs.RealToString(stddev) +
-      ", coeff. of var.: " + Externs.RealToString(CoefficientOfVariance())
+      ", CV: " + Externs.RealToString(CV())
     }
 
-    function method CoefficientOfVariance(): real
+    function method CV(): real
     {
       if mean == 0.0 then 0.0 else stddev / mean
     }

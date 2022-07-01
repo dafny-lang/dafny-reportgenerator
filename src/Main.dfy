@@ -35,9 +35,9 @@ module Main {
                              maxDurationSeconds: Option<nat> := None, 
                              maxResourceCount: Option<nat> := None,
                              maxDurationStddev: Option<real> := None,
-                             maxDurationVarCoef: Option<real> := None,
+                             maxDurationCV: Option<real> := None,
                              maxResourceStddev: Option<real> := None,
-                             maxResourceVarCoef: Option<real> := None,
+                             maxResourceCV: Option<real> := None,
                              filePaths: seq<string> := [])
 
   // TODO: It would be nice to return an `Outcome<string>` instead, but the current
@@ -74,9 +74,9 @@ module Main {
     var inconsistentResults := Filter((r: (string, bool)) => !r.1, groupedResultConsistency);
 
     if || options.maxResourceStddev.Some?
-       || options.maxResourceVarCoef.Some?
+       || options.maxResourceCV.Some?
        || options.maxDurationStddev.Some?
-       || options.maxDurationVarCoef.Some? {
+       || options.maxDurationCV.Some? {
       print "All results (statistics):\n\n";
       PrintAllTestResultStatistics(groupedResults);
     } else {
@@ -139,9 +139,9 @@ module Main {
       passed := PrintExceedingValues("duration standard deviation", stddevs, options.maxDurationStddev.value);
     }
 
-    if options.maxDurationVarCoef.Some? {
-      var varcoefs := ResultGroupStatistics(groupedResults, results => TestResultDurationStatistics(results).CoefficientOfVariance());
-      passed := PrintExceedingValues("duration coeff. of var.", varcoefs, options.maxDurationVarCoef.value);
+    if options.maxDurationCV.Some? {
+      var CVs := ResultGroupStatistics(groupedResults, results => TestResultDurationStatistics(results).CV());
+      passed := PrintExceedingValues("duration CV", CVs, options.maxDurationCV.value);
     }
 
     if options.maxResourceStddev.Some? {
@@ -149,9 +149,9 @@ module Main {
       passed := PrintExceedingValues("resource standard deviation", stddevs, options.maxResourceStddev.value);
     }
 
-    if options.maxResourceVarCoef.Some? {
-      var varcoefs := ResultGroupStatistics(groupedResults, results => TestResultResourceStatistics(results).CoefficientOfVariance());
-      passed := PrintExceedingValues("resource coeff. of var.", varcoefs, options.maxResourceVarCoef.value);
+    if options.maxResourceCV.Some? {
+      var CVs := ResultGroupStatistics(groupedResults, results => TestResultResourceStatistics(results).CV());
+      passed := PrintExceedingValues("resource CV", CVs, options.maxResourceCV.value);
     }
   }
 
@@ -179,9 +179,9 @@ module Main {
       "usage: dafny-reportgenerator summarize-csv-results [--max-resource-count N]\n" +
       "                                                   [--max-duration-seconds N]\n" +
       "                                                   [--max-resource-stddev N]\n" +
-      "                                                   [--max-resource-varcoef N]\n" +
+      "                                                   [--max-resource-cv N]\n" +
       "                                                   [--max-duration-stddev N]\n" +
-      "                                                   [--max-duration-varcoef N]\n" +
+      "                                                   [--max-duration-cv N]\n" +
       "                                                   [file_paths ...]\n" +
       "\n" +
       "file_paths                 CSV files produced from Dafny's /verificationLogger:csv feature.\n" +
@@ -191,12 +191,12 @@ module Main {
       "--max-duration-seconds N   Fail if any results have a duration over the given value in seconds.\n" +
       "--max-resource-stddev N    Fail if multiple results exist for each proof obligation and the standard\n" +
       "                           deviation of their resource counts is over the given value.\n" +
-      "--max-resource-varcoef N   Fail if multiple results exist for each proof obligation and the coefficient\n" +
+      "--max-resource-cv N        Fail if multiple results exist for each proof obligation and the coefficient\n" +
       "                           of variance (stddev / mean) of their resource counts is over the given\n" +
       "                           value (stated as an integer percentage).\n" +
       "--max-duration-stddev N    Fail if multiple results exist for each proof obligation and the standard\n" +
       "                           deviation of their durations is over the given value.\n" +
-      "--max-duration-varcoef N   Fail if multiple results exist for each proof obligation and the coefficient\n" +
+      "--max-duration-cv N        Fail if multiple results exist for each proof obligation and the coefficient\n" +
       "                           of variance (stddev / mean) of their durations is over the given value (stated\n" +
       "                           as an integer percentage).\n" +
       "";
@@ -224,9 +224,9 @@ module Main {
     var maxResourceCount: Option<nat> := None;
     var maxDurationSeconds: Option<nat> := None;
     var maxResourceStddev: Option<real> := None;
-    var maxResourceVarCoef: Option<real> := None;
+    var maxResourceCV: Option<real> := None;
     var maxDurationStddev: Option<real> := None;
-    var maxDurationVarCoef: Option<real> := None;
+    var maxDurationCV: Option<real> := None;
     var filePaths: seq<string> := [];
     var argIndex := 2;
     while argIndex < |args| {
@@ -247,20 +247,20 @@ module Main {
           argIndex := argIndex + 1;
           maxResourceStddev := Some(count as real);
         }
-        case "--max-resource-varcoef" => {
+        case "--max-resource-cv" => {
           var pct :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          maxResourceVarCoef := Some(pct as real / 100.0);
+          maxResourceCV := Some(pct as real / 100.0);
         }
         case "--max-duration-stddev" => {
           var seconds :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
           maxDurationStddev := Some((seconds * Externs.DurationTicksPerSecond) as real);
         }
-        case "--max-duration-varcoef" => {
+        case "--max-duration-cv" => {
           var pct :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          maxDurationVarCoef := Some(pct as real / 100.0);
+          maxDurationCV := Some(pct as real / 100.0);
         }
         case _ => {
           filePaths := filePaths + [arg];
@@ -271,9 +271,9 @@ module Main {
     return Success(Options(maxDurationSeconds := maxDurationSeconds,
                            maxResourceCount := maxResourceCount,
                            maxResourceStddev := maxResourceStddev,
-                           maxResourceVarCoef := maxResourceVarCoef,
+                           maxResourceCV := maxResourceCV,
                            maxDurationStddev := maxDurationStddev,
-                           maxDurationVarCoef := maxDurationVarCoef,
+                           maxDurationCV := maxDurationCV,
                            filePaths := filePaths));
   }
 }
