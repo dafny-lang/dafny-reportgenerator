@@ -38,12 +38,12 @@ There are currently two different metrics that you can set a maximum bound on:
     deleting the `TestResults` directory or any of its contents between
     runs.
 
-4. `--max-duration-varcoef N`
+4. `--max-duration-cv N`
 
     Bounds the _normalized_ standard deviation (a.k.a., coefficient of
-    variance) of multiple measurements of the wall-clock time needed to
-    complete a verification task, as an integer percentage. This
-    decouples variance from total execution time.
+    variance, or CV) of multiple measurements of the wall-clock time
+    needed to complete a verification task, as an integer percentage.
+    This decouples variance from total execution time.
 
 5. `--max-resource-stddev N`
 
@@ -52,11 +52,11 @@ There are currently two different metrics that you can set a maximum bound on:
     to `--max-duration-stddev` but more stable between different runs
     and across different platforms.
 
-6. `--max-resource-varcoef N`
+6. `--max-resource-cv N`
 
     Bounds the _normalized_ standard deviation (a.k.a. coefficient of
-    variance) of multiple measurements of the solver "resources" needed
-    to complete a verification task. This is similar to
+    variance, or CV) of multiple measurements of the solver "resources"
+    needed to complete a verification task. This is similar to
     `--max-duration-varcoef` but more stable between different runs and
     across different platforms.
 
