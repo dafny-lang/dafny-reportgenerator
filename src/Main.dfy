@@ -36,6 +36,7 @@ module Main {
                              maxResourceCount: Option<nat> := None,
                              maxDurationStddev: Option<real> := None,
                              maxResourceStddev: Option<real> := None,
+                             allowDifferentOutcomes: bool := false,
                              filePaths: seq<string> := [])
 
   // TODO: It would be nice to return an `Outcome<string>` instead, but the current
@@ -120,8 +121,8 @@ module Main {
       passed := PrintExceedingStddevs("resource count", stddevs, options.maxResourceStddev.value);
     }
 
-    if |inconsistentResults| > 0 {
-      print "The following results have inconsistent outcomes:\n";
+    if |inconsistentResults| > 0 && !options.allowDifferentOutcomes {
+      print "\nThe following results have inconsistent outcomes:\n";
       for i := 0 to |inconsistentResults| {
         print "  ", inconsistentResults[i].0, "\n";
       }
@@ -186,6 +187,7 @@ module Main {
     var maxDurationSeconds: Option<nat> := None;
     var maxResourceStddev: Option<real> := None;
     var maxDurationStddev: Option<real> := None;
+    var allowDifferentOutcomes: bool := false;
     var filePaths: seq<string> := [];
     var argIndex := 2;
     while argIndex < |args| {
@@ -215,6 +217,9 @@ module Main {
           var seconds :- Externs.ParseNat(args[argIndex]);
           maxDurationStddev := Some((seconds * Externs.DurationTicksPerSecond) as real);
         }
+        case "--allow-different-outcomes" => {
+          allowDifferentOutcomes := true;
+        }
         case _ => {
           filePaths := filePaths + [arg];
         }
@@ -225,6 +230,7 @@ module Main {
                            maxResourceCount := maxResourceCount,
                            maxResourceStddev := maxResourceStddev,
                            maxDurationStddev := maxDurationStddev,
+                           allowDifferentOutcomes := allowDifferentOutcomes,
                            filePaths := filePaths));
   }
 }
