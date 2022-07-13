@@ -122,7 +122,7 @@ module Main {
     }
 
     if |inconsistentResults| > 0 && !options.allowDifferentOutcomes {
-      print "\nThe following results have inconsistent outcomes:\n";
+      print "\nThe following results have inconsistent outcomes:\n\n";
       for i := 0 to |inconsistentResults| {
         print "  ", inconsistentResults[i].0, "\n";
       }
