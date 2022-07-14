@@ -30,6 +30,8 @@ jobs:
         dotnet test --verbosity normal
         # Ensure failure on a concrete CSV with inconsistent outcomes
         ! dotnet run --project src -- summarize-csv-results test/diff-outcomes.csv
+        # Ensure success on a concrete CSV with inconsistent outcomes if asked for
+        dotnet run --project src -- summarize-csv-results --allow-different-outcomes test/diff-outcomes.csv
     - name: Self Report
       # Generates a report based on the logged data from verifying itself.
       # This is both a guard against unstable verification and a smoke test of the tool itself.

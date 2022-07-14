@@ -38,6 +38,7 @@ module Main {
                              maxDurationCV: Option<real> := None,
                              maxResourceStddev: Option<real> := None,
                              maxResourceCV: Option<real> := None,
+                             allowDifferentOutcomes: bool := false,
                              filePaths: seq<string> := [])
 
   // TODO: It would be nice to return an `Outcome<string>` instead, but the current
@@ -117,8 +118,8 @@ module Main {
 
     passed := PrintStatistics(options, groupedResults, passed);
 
-    if |inconsistentResults| > 0 {
-      print "The following results have inconsistent outcomes:\n";
+    if |inconsistentResults| > 0 && !options.allowDifferentOutcomes {
+      print "\nThe following results have inconsistent outcomes:\n\n";
       for i := 0 to |inconsistentResults| {
         print "  ", inconsistentResults[i].0, "\n";
       }
@@ -227,6 +228,7 @@ module Main {
     var maxResourceCV: Option<real> := None;
     var maxDurationStddev: Option<real> := None;
     var maxDurationCV: Option<real> := None;
+    var allowDifferentOutcomes: bool := false;
     var filePaths: seq<string> := [];
     var argIndex := 2;
     while argIndex < |args| {
@@ -262,6 +264,9 @@ module Main {
           argIndex := argIndex + 1;
           maxDurationCV := Some(pct as real / 100.0);
         }
+        case "--allow-different-outcomes" => {
+          allowDifferentOutcomes := true;
+        }
         case _ => {
           filePaths := filePaths + [arg];
         }
@@ -274,6 +279,7 @@ module Main {
                            maxResourceCV := maxResourceCV,
                            maxDurationStddev := maxDurationStddev,
                            maxDurationCV := maxDurationCV,
+                           allowDifferentOutcomes := allowDifferentOutcomes,
                            filePaths := filePaths));
   }
 }

@@ -60,6 +60,13 @@ There are currently two different metrics that you can set a maximum bound on:
     `--max-duration-varcoef` but more stable between different runs and
     across different platforms.
 
+5. `--allow-different-outcomes`
+
+    Don't fail if a given verification task has more than one type of
+    outcome (e.g., success and timeout). Normally, this is considered an
+    error, but during the process of making a project more stable it can
+    sometimes be useful to allow.
+
 Here is an example of the output of this tool when run against the results of verifying itself. The CSV files
 were created by passing `/verificationLogger:csv` when invoking the `dafny` command-line tool. The maximum resource count
 is set unrealistically low here, just to demonstrate the behavior when violated.
