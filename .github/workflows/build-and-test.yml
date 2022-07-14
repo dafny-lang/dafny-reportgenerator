@@ -35,7 +35,7 @@ jobs:
     - name: Self Report
       # Generates a report based on the logged data from verifying itself.
       # This is both a guard against unstable verification and a smoke test of the tool itself.
-      run: dotnet run --project src -- summarize-csv-results --max-resource-count 1500000 .
+      run: dotnet run --project src -- summarize-csv-results --max-resource-count 900000 .
     - name: Stability Analysis
       # Analyzes the stability of verification by running it several
       # more times and calculating statistics
@@ -43,7 +43,7 @@ jobs:
       # Runs Dafny directly because it doesn't seem like we can pass
       # multiple arguments to it through MSBuild.
       run: |
-        SRC_DFYS=`find src -name "*.dfy"`
-        TEST_DFYS=`find test -name "*.dfy"`
-        dafny /compile:0 /timeLimit:30 /verificationLogger:csv /randomSeedIterations:5 ${SRC_DFYS} ${TEST_DFYS}
-        dotnet run --project src -- summarize-csv-results --max-resource-stddev 100000 .
+        DFYS=`find src test -name "*.dfy"`
+        dafny /compile:0 /timeLimit:30 /verificationLogger:csv /randomSeedIterations:5 ${DFYS}
+        dotnet run --project src -- summarize-csv-results --max-resource-stddev 10000 .
+        dotnet run --project src -- summarize-csv-results --max-resource-cv-pct 5 .

@@ -64,7 +64,11 @@ namespace Externs_Compile {
     }
 
     private static Double BigRationalToDouble(BigRational r) {
-      return (double)r.num / (double)r.den;
+      if (r.num == 0) {
+        return 0.0;
+      } else {
+        return (double)r.num / (double)r.den;
+      }
     }
 
     public static icharseq RealToString(BigRational r) {

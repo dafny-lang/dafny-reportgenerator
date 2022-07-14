@@ -38,12 +38,27 @@ There are currently two different metrics that you can set a maximum bound on:
     deleting the `TestResults` directory or any of its contents between
     runs.
 
-4. `--max-resource-stddev N`
+4. `--max-duration-cv-pct N`
 
-    Bounds the standard deviation of multiple measurements of the
-    solver "resources" needed to complete a verification task. This is
-    similar to `--max-duration-stddev` but more stable between different
-    runs and across different platforms.
+    Bounds the _normalized_ standard deviation (a.k.a., coefficient of
+    variance, or CV) of multiple measurements of the wall-clock time
+    needed to complete a verification task, as an integer percentage.
+    This decouples variance from total execution time.
+
+5. `--max-resource-stddev N`
+
+    Bounds the standard deviation of multiple measurements of the solver
+    "resources" needed to complete a verification task. This is similar
+    to `--max-duration-stddev` but more stable between different runs
+    and across different platforms.
+
+6. `--max-resource-cv-pct N`
+
+    Bounds the _normalized_ standard deviation (a.k.a. coefficient of
+    variance, or CV) of multiple measurements of the solver "resources"
+    needed to complete a verification task. This is similar to
+    `--max-duration-cv-pct` but more stable between different runs and
+    across different platforms.
 
 5. `--allow-different-outcomes`
 

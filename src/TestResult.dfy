@@ -123,16 +123,10 @@ module TestResult {
     res := StandardLibrary.MapToSeq(map k | k in groupedResults :: f(k, groupedResults[k]));
   }
 
-  method ResultGroupResourceStddevs(groupedResults: map<string, seq<TestResult>>)
+  method ResultGroupStatistics(groupedResults: map<string, seq<TestResult>>, f: seq<TestResult> -> real)
     returns (res: seq <(string, real)>)
   {
-    res := MapResultGroups(groupedResults, (name, results) => TestResultResourceStatistics(results).stddev);
-  }
-
-  method ResultGroupDurationStddevs(groupedResults: map<string, seq<TestResult>>)
-    returns (res: seq <(string, real)>)
-  {
-    res := MapResultGroups(groupedResults, (name, results) => TestResultDurationStatistics(results).stddev);
+    res := MapResultGroups(groupedResults, (name, results) => f(results));
   }
 
   method ResultGroupConsistency(groupedResults: map<string, seq<TestResult>>)

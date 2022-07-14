@@ -35,7 +35,9 @@ module Main {
                              maxDurationSeconds: Option<nat> := None, 
                              maxResourceCount: Option<nat> := None,
                              maxDurationStddev: Option<real> := None,
+                             maxDurationCV: Option<real> := None,
                              maxResourceStddev: Option<real> := None,
+                             maxResourceCV: Option<real> := None,
                              allowDifferentOutcomes: bool := false,
                              filePaths: seq<string> := [])
 
@@ -72,7 +74,10 @@ module Main {
     var groupedResultConsistency := ResultGroupConsistency(groupedResults);
     var inconsistentResults := Filter((r: (string, bool)) => !r.1, groupedResultConsistency);
 
-    if options.maxResourceStddev.Some? || options.maxDurationStddev.Some? {
+    if || options.maxResourceStddev.Some?
+       || options.maxResourceCV.Some?
+       || options.maxDurationStddev.Some?
+       || options.maxDurationCV.Some? {
       print "All results (statistics):\n\n";
       PrintAllTestResultStatistics(groupedResults);
     } else {
@@ -111,15 +116,7 @@ module Main {
       }
     }
 
-    if options.maxDurationStddev.Some? {
-      var stddevs := ResultGroupDurationStddevs(groupedResults);
-      passed := PrintExceedingStddevs("duration", stddevs, options.maxDurationStddev.value);
-    }
-
-    if options.maxResourceStddev.Some? {
-      var stddevs := ResultGroupResourceStddevs(groupedResults);
-      passed := PrintExceedingStddevs("resource count", stddevs, options.maxResourceStddev.value);
-    }
+    passed := PrintStatistics(options, groupedResults, passed);
 
     if |inconsistentResults| > 0 && !options.allowDifferentOutcomes {
       print "\nThe following results have inconsistent outcomes:\n\n";
@@ -134,14 +131,39 @@ module Main {
     return Success(());
   }
 
-  method PrintExceedingStddevs(description: string, stddevs: seq<(string, real)>, limit: real) returns (passed: bool) {
-      var exceedingStddevs := Filter((t:(string, real)) => limit < t.1, stddevs);
-      if 0 < |exceedingStddevs| {
+  method PrintStatistics(options: Options, groupedResults: map<string, seq<TestResult.TestResult>>, initialPassed: bool)
+    returns (passed: bool)
+  {
+    passed := initialPassed;
+    if options.maxDurationStddev.Some? {
+      var stddevs := ResultGroupStatistics(groupedResults, results => TestResultDurationStatistics(results).stddev);
+      passed := PrintExceedingValues("duration standard deviation", stddevs, options.maxDurationStddev.value);
+    }
+
+    if options.maxDurationCV.Some? {
+      var CVs := ResultGroupStatistics(groupedResults, results => TestResultDurationStatistics(results).CV());
+      passed := PrintExceedingValues("duration coefficient of variance", CVs, options.maxDurationCV.value);
+    }
+
+    if options.maxResourceStddev.Some? {
+      var stddevs := ResultGroupStatistics(groupedResults, results => TestResultResourceStatistics(results).stddev);
+      passed := PrintExceedingValues("resource standard deviation", stddevs, options.maxResourceStddev.value);
+    }
+
+    if options.maxResourceCV.Some? {
+      var CVs := ResultGroupStatistics(groupedResults, results => TestResultResourceStatistics(results).CV());
+      passed := PrintExceedingValues("resource coefficient of variance", CVs, options.maxResourceCV.value);
+    }
+  }
+
+  method PrintExceedingValues(description: string, values: seq<(string, real)>, limit: real) returns (passed: bool) {
+      var exceedingValues := Filter((t:(string, real)) => limit < t.1, values);
+      if 0 < |exceedingValues| {
         passed := false;
-        print "\nSome results have a ", description, " standard deviation over the configured limit of ", limit, ":\n\n";
-        for resIdx := 0 to |exceedingStddevs| {
-          var t : (string, real) := exceedingStddevs[resIdx];
-          print t.0, ": stddev = ", Externs.RealToString(t.1), "\n";
+        print "\nSome results have a ", description, " over the configured limit of ", limit, ":\n\n";
+        for resIdx := 0 to |exceedingValues| {
+          var t : (string, real) := exceedingValues[resIdx];
+          print t.0, ": ", description, " = ", Externs.RealToString(t.1), "\n";
         }
       } else {
         passed := true;
@@ -158,7 +180,9 @@ module Main {
       "usage: dafny-reportgenerator summarize-csv-results [--max-resource-count N]\n" +
       "                                                   [--max-duration-seconds N]\n" +
       "                                                   [--max-resource-stddev N]\n" +
+      "                                                   [--max-resource-cv-pct N]\n" +
       "                                                   [--max-duration-stddev N]\n" +
+      "                                                   [--max-duration-cv-pct N]\n" +
       "                                                   [file_paths ...]\n" +
       "\n" +
       "file_paths                 CSV files produced from Dafny's /verificationLogger:csv feature.\n" +
@@ -168,9 +192,24 @@ module Main {
       "--max-duration-seconds N   Fail if any results have a duration over the given value in seconds.\n" +
       "--max-resource-stddev N    Fail if multiple results exist for each proof obligation and the standard\n" +
       "                           deviation of their resource counts is over the given value.\n" +
+      "--max-resource-cv-pct N    Fail if multiple results exist for each proof obligation and the coefficient\n" +
+      "                           of variance (stddev / mean) of their resource counts is over the given\n" +
+      "                           value (stated as an integer percentage).\n" +
       "--max-duration-stddev N    Fail if multiple results exist for each proof obligation and the standard\n" +
       "                           deviation of their durations is over the given value.\n" +
+      "--max-duration-cv-pct N    Fail if multiple results exist for each proof obligation and the coefficient\n" +
+      "                           of variance (stddev / mean) of their durations is over the given value (stated\n" +
+      "                           as an integer percentage).\n" +
       "";
+
+  method ParseCommandLineNat(args: seq<string>, argIndex: nat)
+    returns (result: Result<nat, string>)
+    requires argIndex < |args|
+  {
+    :- Need(argIndex + 1 < |args|, args[argIndex] + " must be followed by an argument\n\n" + helpText);
+    var val :- Externs.ParseNat(args[argIndex + 1]);
+    return Success(val);
+  }
 
   method ParseCommandLineOptions(args: seq<string>) returns (result: Result<Options, string>) {
     :- Need(|args| >= 2, "Not enough arguments.");
@@ -186,7 +225,9 @@ module Main {
     var maxResourceCount: Option<nat> := None;
     var maxDurationSeconds: Option<nat> := None;
     var maxResourceStddev: Option<real> := None;
+    var maxResourceCV: Option<real> := None;
     var maxDurationStddev: Option<real> := None;
+    var maxDurationCV: Option<real> := None;
     var allowDifferentOutcomes: bool := false;
     var filePaths: seq<string> := [];
     var argIndex := 2;
@@ -194,28 +235,34 @@ module Main {
       var arg := args[argIndex];
       match arg {
         case "--max-resource-count" => {
-          :- Need(argIndex + 1 < |args|, "--max-resource-count must be followed by an argument\n\n" + helpText);
+          var count :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          var count :- Externs.ParseNat(args[argIndex]);
           maxResourceCount := Some(count);
         }
         case "--max-duration-seconds" => {
-          :- Need(argIndex + 1 < |args|, "--max-duration-seconds must be followed by an argument\n\n" + helpText);
+          var seconds :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          var seconds :- Externs.ParseNat(args[argIndex]);
           maxDurationSeconds := Some(seconds);
         }
         case "--max-resource-stddev" => {
-          :- Need(argIndex + 1 < |args|, "--max-resource-stddev must be followed by an argument\n\n" + helpText);
+          var count :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          var count :- Externs.ParseNat(args[argIndex]);
           maxResourceStddev := Some(count as real);
         }
-        case "--max-duration-stddev" => {
-          :- Need(argIndex + 1 < |args|, "--max-duration-stddev must be followed by an argument\n\n" + helpText);
+        case "--max-resource-cv-pct" => {
+          var pct :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
-          var seconds :- Externs.ParseNat(args[argIndex]);
+          maxResourceCV := Some(pct as real / 100.0);
+        }
+        case "--max-duration-stddev" => {
+          var seconds :- ParseCommandLineNat(args, argIndex);
+          argIndex := argIndex + 1;
           maxDurationStddev := Some((seconds * Externs.DurationTicksPerSecond) as real);
+        }
+        case "--max-duration-cv-pct" => {
+          var pct :- ParseCommandLineNat(args, argIndex);
+          argIndex := argIndex + 1;
+          maxDurationCV := Some(pct as real / 100.0);
         }
         case "--allow-different-outcomes" => {
           allowDifferentOutcomes := true;
@@ -229,7 +276,9 @@ module Main {
     return Success(Options(maxDurationSeconds := maxDurationSeconds,
                            maxResourceCount := maxResourceCount,
                            maxResourceStddev := maxResourceStddev,
+                           maxResourceCV := maxResourceCV,
                            maxDurationStddev := maxDurationStddev,
+                           maxDurationCV := maxDurationCV,
                            allowDifferentOutcomes := allowDifferentOutcomes,
                            filePaths := filePaths));
   }
