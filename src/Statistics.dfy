@@ -36,7 +36,7 @@ module Statistics {
     function method ToString(): string {
       "min: " + Externs.RealToString(min) + ", max: " + Externs.RealToString(max) +
       ", mean: " + Externs.RealToString(mean) + ", stddev: " + Externs.RealToString(stddev) +
-      ", CV: " + Externs.RealToString(CV())
+      ", coefficient of variance: " + Externs.RealToString(CV())
     }
 
     function method CV(): real
