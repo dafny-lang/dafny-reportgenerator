@@ -142,7 +142,7 @@ module Main {
 
     if options.maxDurationCV.Some? {
       var CVs := ResultGroupStatistics(groupedResults, results => TestResultDurationStatistics(results).CV());
-      passed := PrintExceedingValues("duration CV", CVs, options.maxDurationCV.value);
+      passed := PrintExceedingValues("duration coefficient of variance", CVs, options.maxDurationCV.value);
     }
 
     if options.maxResourceStddev.Some? {
@@ -152,7 +152,7 @@ module Main {
 
     if options.maxResourceCV.Some? {
       var CVs := ResultGroupStatistics(groupedResults, results => TestResultResourceStatistics(results).CV());
-      passed := PrintExceedingValues("resource CV", CVs, options.maxResourceCV.value);
+      passed := PrintExceedingValues("resource coefficient of variance", CVs, options.maxResourceCV.value);
     }
   }
 
@@ -180,9 +180,9 @@ module Main {
       "usage: dafny-reportgenerator summarize-csv-results [--max-resource-count N]\n" +
       "                                                   [--max-duration-seconds N]\n" +
       "                                                   [--max-resource-stddev N]\n" +
-      "                                                   [--max-resource-cv N]\n" +
+      "                                                   [--max-resource-cv-pct N]\n" +
       "                                                   [--max-duration-stddev N]\n" +
-      "                                                   [--max-duration-cv N]\n" +
+      "                                                   [--max-duration-cv-pct N]\n" +
       "                                                   [file_paths ...]\n" +
       "\n" +
       "file_paths                 CSV files produced from Dafny's /verificationLogger:csv feature.\n" +
@@ -192,12 +192,12 @@ module Main {
       "--max-duration-seconds N   Fail if any results have a duration over the given value in seconds.\n" +
       "--max-resource-stddev N    Fail if multiple results exist for each proof obligation and the standard\n" +
       "                           deviation of their resource counts is over the given value.\n" +
-      "--max-resource-cv N        Fail if multiple results exist for each proof obligation and the coefficient\n" +
+      "--max-resource-cv-pct N    Fail if multiple results exist for each proof obligation and the coefficient\n" +
       "                           of variance (stddev / mean) of their resource counts is over the given\n" +
       "                           value (stated as an integer percentage).\n" +
       "--max-duration-stddev N    Fail if multiple results exist for each proof obligation and the standard\n" +
       "                           deviation of their durations is over the given value.\n" +
-      "--max-duration-cv N        Fail if multiple results exist for each proof obligation and the coefficient\n" +
+      "--max-duration-cv-pct N    Fail if multiple results exist for each proof obligation and the coefficient\n" +
       "                           of variance (stddev / mean) of their durations is over the given value (stated\n" +
       "                           as an integer percentage).\n" +
       "";
@@ -249,7 +249,7 @@ module Main {
           argIndex := argIndex + 1;
           maxResourceStddev := Some(count as real);
         }
-        case "--max-resource-cv" => {
+        case "--max-resource-cv-pct" => {
           var pct :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
           maxResourceCV := Some(pct as real / 100.0);
@@ -259,7 +259,7 @@ module Main {
           argIndex := argIndex + 1;
           maxDurationStddev := Some((seconds * Externs.DurationTicksPerSecond) as real);
         }
-        case "--max-duration-cv" => {
+        case "--max-duration-cv-pct" => {
           var pct :- ParseCommandLineNat(args, argIndex);
           argIndex := argIndex + 1;
           maxDurationCV := Some(pct as real / 100.0);
