@@ -142,7 +142,7 @@ module Main {
 
     if options.maxDurationCV.Some? {
       var CVs := ResultGroupStatistics(groupedResults, results => TestResultDurationStatistics(results).CV());
-      passed := PrintExceedingValues("duration coefficient of variance", CVs, options.maxDurationCV.value);
+      passed := PrintExceedingValues("duration coefficient of variation", CVs, options.maxDurationCV.value);
     }
 
     if options.maxResourceStddev.Some? {
@@ -152,7 +152,7 @@ module Main {
 
     if options.maxResourceCV.Some? {
       var CVs := ResultGroupStatistics(groupedResults, results => TestResultResourceStatistics(results).CV());
-      passed := PrintExceedingValues("resource coefficient of variance", CVs, options.maxResourceCV.value);
+      passed := PrintExceedingValues("resource coefficient of variation", CVs, options.maxResourceCV.value);
     }
   }
 
@@ -193,12 +193,12 @@ module Main {
       "--max-resource-stddev N    Fail if multiple results exist for each proof obligation and the standard\n" +
       "                           deviation of their resource counts is over the given value.\n" +
       "--max-resource-cv-pct N    Fail if multiple results exist for each proof obligation and the coefficient\n" +
-      "                           of variance (stddev / mean) of their resource counts is over the given\n" +
+      "                           of variation (stddev / mean) of their resource counts is over the given\n" +
       "                           value (stated as an integer percentage).\n" +
       "--max-duration-stddev N    Fail if multiple results exist for each proof obligation and the standard\n" +
       "                           deviation of their durations is over the given value.\n" +
       "--max-duration-cv-pct N    Fail if multiple results exist for each proof obligation and the coefficient\n" +
-      "                           of variance (stddev / mean) of their durations is over the given value (stated\n" +
+      "                           of variation (stddev / mean) of their durations is over the given value (stated\n" +
       "                           as an integer percentage).\n" +
       "";
 
