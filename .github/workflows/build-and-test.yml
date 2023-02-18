@@ -5,10 +5,24 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      nightly:
+        description: 'Run the nightly build'
+        required: false
+        type: boolean
+  schedule:
+    # Nightly build against Dafny's nightly prereleases,
+    # for early warning of verification issues or regressions.
+    # Timing chosen to be adequately after Dafny's own nightly build,
+    # but this might need to be tweaked:
+    # https://github.com/dafny-lang/dafny/blob/master/.github/workflows/deep-tests.yml#L16
+    - cron: "30 8 * * *"
 
 jobs:
   build:
-
+    # Don't run the nightly build on forks
+    if: github.event_name != 'schedule' || github.repository_owner == 'dafny-lang'
     runs-on: ubuntu-latest
 
     steps:
@@ -19,10 +33,10 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-    - name: Set up Dafny
-      uses: dafny-lang/setup-dafny-action@v1
+    - name: Setup Dafny
+      uses: dafny-lang/setup-dafny-action@v1.6.0
       with:
-        dafny-version: "3.7.1"
+        dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '3.7.1' }}
     - name: Verify Dafny code
       run: dotnet build -t:VerifyDafny -p:VerifyDafnyJobs=2 -p:TestVerifyOverride="verificationLogger:csv"
     - name: Run Tests
