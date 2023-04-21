@@ -34,7 +34,7 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Setup Dafny
-      uses: dafny-lang/setup-dafny-action@v1.6.0
+      uses: dafny-lang/setup-dafny-action@v1.6.1
       with:
         dafny-version: ${{ (github.event_name == 'schedule' || inputs.nightly) && 'nightly-latest' || '3.7.1' }}
     - name: Verify Dafny code
