@@ -12,7 +12,7 @@ module CSV {
   type Row = map<string, string>
   type Table = seq<Row>
 
-  function method ParseDataWithHeader(lines: seq<string>): Result<Table, string> {
+  function ParseDataWithHeader(lines: seq<string>): Result<Table, string> {
     :- Need(|lines| > 0, "Must have at least one row");
     var header := ParseRow(lines[0]);
 
@@ -24,7 +24,7 @@ module CSV {
     Success(rows)
   }
 
-  function method ParseRowWithHeader(header: seq<string>, line: string): Result<Row, string>
+  function ParseRowWithHeader(header: seq<string>, line: string): Result<Row, string>
     requires HasNoDuplicates(header)
   {
     var row := ParseRow(line);
@@ -34,7 +34,7 @@ module CSV {
     Success(map i | 0 <= i < |header| :: header[i] := row[i])
   }
 
-  function method ParseRow(line: string): seq<string> {
+  function ParseRow(line: string): seq<string> {
     Split(line, ',')
   }
 }

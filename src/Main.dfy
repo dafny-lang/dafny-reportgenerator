@@ -8,7 +8,7 @@ include "Externs.dfy"
 include "StandardLibrary.dfy"
 include "TestResult.dfy"
 
-module Main {
+module {:extern "DMain"} Main {
 
   import opened Wrappers
   import opened Seq
@@ -66,7 +66,7 @@ module Main {
     }
 
     // Sort by the negative resource count in order to sort from highest to lowest
-    var negativeResourceCountGetter: TestResult.TestResult -> int := (r: TestResult.TestResult) => -(r.resourceCount as int);
+    var negativeResourceCountGetter: TestResult -> int := (r: TestResult) => -(r.resourceCount as int);
     var allResultsSorted := StandardLibrary.MergeSortBy(allResults, negativeResourceCountGetter);
 
     // Group the results by name, for aggregate statistics
@@ -89,7 +89,7 @@ module Main {
 
     if options.maxDurationSeconds.Some? {
       var maxDurationTicks :=  options.maxDurationSeconds.value as int * Externs.DurationTicksPerSecond;
-      var allResultsOverLimit := Filter((r: TestResult.TestResult) => maxDurationTicks < r.durationTicks as int, allResultsSorted);
+      var allResultsOverLimit := Filter((r: TestResult) => maxDurationTicks < r.durationTicks as int, allResultsSorted);
       if 0 < |allResultsOverLimit| {
         passed := false;
         print "\nSome results have a duration over the configured limit of ", options.maxDurationSeconds.value, " second(s):\n\n";
@@ -101,14 +101,14 @@ module Main {
       // First check for any results with a resource count of "0".
       // At the time of writing this, Dafny will report 0 for any methods with splits, and
       // we don't want to spuriously pass this check because of it.
-      var allResultsWithZeroResourceCounts := Filter((r: TestResult.TestResult) => r.resourceCount == 0, allResultsSorted);
+      var allResultsWithZeroResourceCounts := Filter((r: TestResult) => r.resourceCount == 0, allResultsSorted);
       if 0 < |allResultsWithZeroResourceCounts| {
         passed := false;
         print "\nSome results have a resource count of zero:\n\n";
         PrintTestResults(allResultsWithZeroResourceCounts);
       }
 
-      var allResultsOverLimit := Filter((r: TestResult.TestResult) => options.maxResourceCount.value < r.resourceCount, allResultsSorted);
+      var allResultsOverLimit := Filter((r: TestResult) => options.maxResourceCount.value < r.resourceCount, allResultsSorted);
       if 0 < |allResultsOverLimit| {
         passed := false;
         print "\nSome results have a resource count over the configured limit of ", options.maxResourceCount.value, ":\n\n";
@@ -131,7 +131,7 @@ module Main {
     return Success(());
   }
 
-  method PrintStatistics(options: Options, groupedResults: map<string, seq<TestResult.TestResult>>, initialPassed: bool)
+  method PrintStatistics(options: Options, groupedResults: map<string, seq<TestResult>>, initialPassed: bool)
     returns (passed: bool)
   {
     passed := initialPassed;
@@ -170,7 +170,7 @@ module Main {
       }
   }
 
-  method PrintTestResults(results: seq<TestResult.TestResult>) {
+  method PrintTestResults(results: seq<TestResult>) {
     for i := 0 to |results| {
       print results[i].ToString(), "\n";
     }
@@ -200,7 +200,7 @@ module Main {
       "--max-duration-cv-pct N    Fail if multiple results exist for each proof obligation and the coefficient\n" +
       "                           of variation (stddev / mean) of their durations is over the given value (stated\n" +
       "                           as an integer percentage).\n" +
-      "";
+      ""
 
   method ParseCommandLineNat(args: seq<string>, argIndex: nat)
     returns (result: Result<nat, string>)

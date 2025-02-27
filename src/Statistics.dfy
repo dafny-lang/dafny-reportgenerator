@@ -7,19 +7,19 @@ module Statistics {
   import Externs
   import Seq
 
-  function method Square(n: real): real { n * n }
+  function Square(n: real): real { n * n }
 
-  function method Sum(xs: seq<real>): real {
+  function Sum(xs: seq<real>): real {
     Seq.FoldLeft((a, b) => a + b, 0.0, xs)
   }
 
-  function method Mean(xs: seq<real>): real
+  function Mean(xs: seq<real>): real
     requires 0 < |xs|
   {
     Sum(xs) as real / |xs| as real
   }
 
-  function method StdDev(xs: seq<real>): real
+  function StdDev(xs: seq<real>): real
     requires 0 < |xs|
   {
     var mu := Mean(Seq.Map(x => x as real, xs));
@@ -33,19 +33,19 @@ module Statistics {
     mean: real,
     stddev: real
   ) {
-    function method ToString(): string {
+    function ToString(): string {
       "min: " + Externs.RealToString(min) + ", max: " + Externs.RealToString(max) +
       ", mean: " + Externs.RealToString(mean) + ", stddev: " + Externs.RealToString(stddev) +
       ", coefficient of variation: " + Externs.RealToString(CV())
     }
 
-    function method CV(): real
+    function CV(): real
     {
       if mean == 0.0 then 0.0 else stddev / mean
     }
   }
 
-  function method StatisticsToSeconds(stats: Statistics): Statistics {
+  function StatisticsToSeconds(stats: Statistics): Statistics {
     Statistics(
       stats.min / Externs.DurationTicksPerSecond as real,
       stats.max / Externs.DurationTicksPerSecond as real,
