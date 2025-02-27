@@ -22,7 +22,7 @@ module TestResult {
   import Statistics
 
   datatype TestResult = TestResult(displayName: string, outcome: string, durationTicks: int64, resourceCount: nat) {
-    function method ToString(): string {
+    function ToString(): string {
       displayName + "(" + outcome + ") - Duration = " + Externs.DurationTicksToString(durationTicks) +
                                 ", Resource Count = " + Externs.NatToString(resourceCount)
     }
@@ -34,17 +34,17 @@ module TestResult {
     result := Seq.MapWithResult(ParseFromCSVRow, table);
   }
 
-  const DISPLAY_NAME := "TestResult.DisplayName";
-  const OUTCOME := "TestResult.Outcome";
-  const DURATION := "TestResult.Duration";
-  const RESOURCE_COUNT := "TestResult.ResourceCount";
+  const DISPLAY_NAME := "TestResult.DisplayName"
+  const OUTCOME := "TestResult.Outcome"
+  const DURATION := "TestResult.Duration"
+  const RESOURCE_COUNT := "TestResult.ResourceCount"
 
-  function method GetCSVRowField(row: CSV.Row, fieldName: string): Result<string, string> {
+  function GetCSVRowField(row: CSV.Row, fieldName: string): Result<string, string> {
     :- Need(fieldName in row, "Field missing in row: " + fieldName);
     Success(row[fieldName])
   }
 
-  function method ParseFromCSVRow(row: CSV.Row): Result<TestResult, string> {
+  function ParseFromCSVRow(row: CSV.Row): Result<TestResult, string> {
     var displayName :- GetCSVRowField(row, DISPLAY_NAME);
     var outcome :- GetCSVRowField(row, OUTCOME);
     var durationStr :- GetCSVRowField(row, DURATION);
@@ -67,11 +67,11 @@ module TestResult {
     }
   }
 
-  predicate method ConsistentOutcomes(results: seq<TestResult>) {
+  predicate ConsistentOutcomes(results: seq<TestResult>) {
     |set result <- results :: result.outcome| == 1
   }
 
-  function method TestResultStatistics(results: seq<TestResult>, f: TestResult -> real): Statistics.Statistics
+  function TestResultStatistics(results: seq<TestResult>, f: TestResult -> real): Statistics.Statistics
   {
     if 0 < |results| then
       var min := StandardLibrary.MinRealSeq(Seq.Map(f, results));
@@ -83,12 +83,12 @@ module TestResult {
       Statistics.Statistics(0.0, 0.0, 0.0, 0.0)
   }
 
-  function method TestResultDurationStatistics(results: seq<TestResult>): Statistics.Statistics
+  function TestResultDurationStatistics(results: seq<TestResult>): Statistics.Statistics
   {
     TestResultStatistics(results, (result: TestResult) => result.durationTicks as real)
   }
 
-  function method TestResultResourceStatistics(results: seq<TestResult>): Statistics.Statistics
+  function TestResultResourceStatistics(results: seq<TestResult>): Statistics.Statistics
   {
     TestResultStatistics(results, (result: TestResult) => result.resourceCount as real)
   }

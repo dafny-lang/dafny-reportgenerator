@@ -9,7 +9,7 @@ module StandardLibrary {
   import opened Wrappers
   import opened Seq
 
-  function method {:tailrecursion} Split<T(==)>(s: seq<T>, separator: T): seq<seq<T>> 
+  function {:tailrecursion} Split<T(==)>(s: seq<T>, separator: T): seq<seq<T>>
     decreases |s|
   {
     var indexOption := IndexOfOption(s, separator);
@@ -25,7 +25,7 @@ module StandardLibrary {
 
   // TODO: Make this a predicate-by-method so it has linear runtime instead of quadratic.
   // For now it's only used at runtime in tests.
-  predicate method SortedBy<T>(s: seq<T>, f: T -> int) {
+  predicate SortedBy<T>(s: seq<T>, f: T -> int) {
     forall i, j | 0 <= i < j < |s| :: f(s[i]) <= f(s[j])
   }
 
@@ -35,7 +35,7 @@ module StandardLibrary {
     ensures SortedBy([x] + s, f)
   {}
 
-  function method MergeSortBy<T>(s: seq<T>, f: T -> int): (result: seq<T>)
+  function MergeSortBy<T>(s: seq<T>, f: T -> int): (result: seq<T>)
     ensures SortedBy(result, f)
     ensures multiset(s) == multiset(result)
   {
@@ -52,7 +52,7 @@ module StandardLibrary {
       MergeSortedBy(leftSorted, rightSorted, f)
   }
 
-  function method {:tailrecursion} MergeSortedBy<T>(left: seq<T>, right: seq<T>, f: T -> int): (result: seq<T>)
+  function {:tailrecursion} MergeSortedBy<T>(left: seq<T>, right: seq<T>, f: T -> int): (result: seq<T>)
     requires SortedBy(left, f)
     requires SortedBy(right, f)
     ensures SortedBy(result, f)
@@ -94,7 +94,7 @@ module StandardLibrary {
     resultSeq := SetToSeq(m.Items);
   }
 
-  function method MinReal(a: real, b: real): real
+  function MinReal(a: real, b: real): real
   {
     if a < b
       then a
@@ -102,7 +102,7 @@ module StandardLibrary {
       b
   }
 
-  function method MaxReal(a: real, b: real): real
+  function MaxReal(a: real, b: real): real
   {
     if a < b
       then b
@@ -110,7 +110,7 @@ module StandardLibrary {
       a
   }
 
-  function method {:opaque} MinRealSeq(s: seq<real>): real
+  function {:opaque} MinRealSeq(s: seq<real>): real
     requires 0 < |s|
     ensures forall k {:trigger k in s} :: k in s ==> MinRealSeq(s) <= k
     ensures MinRealSeq(s) in s
@@ -119,7 +119,7 @@ module StandardLibrary {
     if |s| == 1 then s[0] else MinReal(s[0], MinRealSeq(s[1..]))
   }
 
-  function method {:opaque} MaxRealSeq(s: seq<real>): real
+  function {:opaque} MaxRealSeq(s: seq<real>): real
     requires 0 < |s|
     ensures forall k {:trigger k in s} :: k in s ==> k <= MaxRealSeq(s)
     ensures MaxRealSeq(s) in s

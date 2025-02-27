@@ -13,14 +13,14 @@ module Externs {
   method {:extern} FindAllCSVTestResultFiles(path: string) returns (lines: Result<seq<string>, string>)
   method {:extern} ReadAllFileLines(path: string) returns (lines: Result<seq<string>, string>)
 
-  function method {:extern} ParseNat(s: string): Result<nat, string>
-  function method {:extern} NatToString(n: nat): string
-  function method {:extern} ParseDurationTicks(s: string): Result<int64, string>
-  function method {:extern} DurationTicksToString(n: int64): string
-  function method {:extern} RealToString(n: real): string
+  function {:extern} ParseNat(s: string): Result<nat, string>
+  function {:extern} NatToString(n: nat): string
+  function {:extern} ParseDurationTicks(s: string): Result<int64, string>
+  function {:extern} DurationTicksToString(n: int64): string
+  function {:extern} RealToString(n: real): string
 
-  function method {:extern} Sqrt(n: real): real
+  function {:extern} Sqrt(n: real): real
 
-  const DurationTicksPerSecond := 10_000_000;
+  const DurationTicksPerSecond := 10_000_000
 }
 
