@@ -1,13 +1,5 @@
 # dafny-reportgenerator
 
-## Installation
-
-To install dafny-reportgenerator, run this command to install it as a dotnet tool:
-
-```shel
-dotnet tool install --global dafny-reportgenerator
-```
-
 A tool for analyzing and reporting on Dafny, especially the results of verification.
 
 The primary use of this tool (for now) is to flag more expensive verification tasks, as these are
@@ -18,6 +10,16 @@ verification cost to any Dafny project's continuous integration. This is better 
 cost bound through options like `/timeLimit` directly, as it allows users to know that their code is still correct, 
 but still blocks code changes that are too expensive to verify and hence likely to break in the future. 
 Note that this tool, which is itself implemented in Dafny, is [no exception](.github/workflows/build-and-test.yml)!
+
+## Installation
+
+To install dafny-reportgenerator, run this command to install it as a dotnet tool:
+
+```shel
+dotnet tool install --global dafny-reportgenerator
+```
+
+## Options
 
 There are currently two different metrics that you can set a maximum bound on:
 
