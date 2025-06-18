@@ -1,4 +1,13 @@
 # dafny-reportgenerator
+
+## Installation
+
+To install dafny-reportgenerator, run this command to install it as a dotnet tool:
+
+```shel
+dotnet tool install --global dafny-reportgenerator
+```
+
 A tool for analyzing and reporting on Dafny, especially the results of verification.
 
 The primary use of this tool (for now) is to flag more expensive verification tasks, as these are
